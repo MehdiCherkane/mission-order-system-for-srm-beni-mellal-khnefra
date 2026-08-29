@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(title='Paramètres')}"></head>
+<body>
+  <div class="page-wrapper">
+    <header th:replace="~{fragments/layout :: header(user=${user})}"></header>
+    <main class="page-main page-main--narrow">
+
+      <div class="detail-topbar">
+        <a th:href="@{/admin/dashboard}" class="detail-back">&larr; Tableau de bord</a>
+      </div>
+
+      <div class="card">
+        <h1>Paramètres</h1>
+        <p class="subtitle">Affectez un chef à chaque service, puis conservez un chef de secours pour les services non configurés.</p>
+
+        <div th:if="${settingsSuccess != null}" class="alert alert--success" th:text="${settingsSuccess}"></div>
+        <div th:if="${settingsError != null}" class="alert alert--error" th:text="${settingsError}"></div>
+
+        <form method="post" th:action="@{/admin/settings}">
+          <div class="form-warning visible" th:if="${!#lists.isEmpty(routingWarnings)}">
+            <strong>Points d'attention pour le routage</strong>
+            <ul>
+              <li th:each="warning : ${routingWarnings}" th:text="${warning}"></li>
+            </ul>
+          </div>
+
+          <div class="card--section">
+            <h2>Chefs par service</h2>
+            <p class="form-hint">Le chef sélectionné reçoit la première étape d'approbation des demandes de ce service.</p>
+            <div class="table-wrapper">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Service</th>
+                    <th>Chef hiérarchique affecté</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr th:each="route : ${serviceRoutingRows}">
+                    <td>
+                      <span th:text="${route.serviceName}">Service</span>
+                      <input type="hidden" name="serviceName" th:value="${route.serviceName}">
+                    </td>
+                    <td>
+                      <select name="serviceChef" class="form-select">
+                        <option value="">Aucun chef affecté — utiliser le chef de secours</option>
+                        <option th:each="c : ${chefs}" th:value="${c.matricule}"
+                                th:text="${c.prenom + ' ' + c.nom + ' (' + c.matricule + ')'}"
+                                th:selected="${c.matricule == route.chefMatricule}"></option>
+                      </select>
+                    </td>
+                  </tr>
+                  <tr th:if="${#lists.isEmpty(serviceRoutingRows)}">
+                    <td colspan="2" class="text-muted">Aucun service n'est encore connu. Ajoutez-en un ci-dessous.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="form-row" style="margin-top:1rem">
+              <div class="form-group form-group--half">
+                <label for="newServiceName" class="form-label">Ajouter un service</label>
+                <input id="newServiceName" name="newServiceName" class="form-input" placeholder="Ex. Service Assainissement">
+              </div>
+              <div class="form-group form-group--half">
+                <label for="newServiceChef" class="form-label">Chef du nouveau service</label>
+                <select id="newServiceChef" name="newServiceChef" class="form-select">
+                  <option value="">Aucun chef affecté</option>
+                  <option th:each="c : ${chefs}" th:value="${c.matricule}"
+                          th:text="${c.prenom + ' ' + c.nom + ' (' + c.matricule + ')'}"></option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="defaultChef" class="form-label">Chef par défaut (si aucun chef n'est assigné au service)</label>
+            <select id="defaultChef" name="defaultChef" class="form-select">
+              <option value="">Sélectionnez...</option>
+              <option th:each="c : ${chefs}" th:value="${c.matricule}" th:text="${c.prenom + ' ' + c.nom + ' (' + c.matricule + ')'}" th:selected="${c.matricule == defaultChef}"></option>
+            </select>
+            <div class="form-hint">Utilisé uniquement lorsqu'aucun chef valide n'est affecté au service du demandeur.</div>
+          </div>
+
+          <div class="form-group">
+            <label for="defaultDirecteur" class="form-label">Directeur provincial par défaut <span class="required">*</span></label>
+            <select id="defaultDirecteur" name="defaultDirecteur" class="form-select" required>
+              <option value="">Sélectionnez...</option>
+              <option th:each="d : ${directeurs}" th:value="${d.matricule}" th:text="${d.prenom + ' ' + d.nom + ' (' + d.matricule + ')'}" th:selected="${d.matricule == defaultDirecteur}"></option>
+            </select>
+            <div class="form-hint">Après validation du chef, la mission sera assignée à ce directeur.</div>
+          </div>
+
+          <div class="form-actions">
+            <a th:href="@{/admin/dashboard}" class="btn btn--outline">Annuler</a>
+            <button type="submit" class="btn btn--primary">Enregistrer</button>
+          </div>
+        </form>
+      </div>
+    </main>
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+  </div>
+</body>
+</html>

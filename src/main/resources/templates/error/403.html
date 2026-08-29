@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(title='Accès refusé')}"></head>
+<body>
+  <div class="page-wrapper">
+    <header th:replace="~{fragments/layout :: header(user=${user})}"></header>
+    <main class="page-main">
+      <div class="card card--centered">
+        <div class="empty-state">
+          <div class="empty-state__icon" style="color:var(--error)">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+          </div>
+          <div class="empty-state__title">Acc&egrave;s refus&eacute;</div>
+          <div class="empty-state__desc">Vous n&rsquo;avez pas les autorisations n&eacute;cessaires pour acc&eacute;der &agrave; cette page.</div>
+          <a th:href="@{/}" class="btn btn--primary">Retour &agrave; l&rsquo;accueil</a>
+        </div>
+      </div>
+    </main>
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+  </div>
+</body>
+</html>

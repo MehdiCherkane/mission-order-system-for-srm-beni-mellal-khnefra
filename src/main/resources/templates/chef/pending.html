@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(title='Approbations — Chef')}"></head>
+<body>
+  <div class="page-wrapper">
+    <header th:replace="~{fragments/layout :: header(user=${user})}"></header>
+    <main class="page-main page-main--wide">
+      <div class="dashboard-header">
+        <h1>Missions</h1>
+      </div>
+
+      <div th:if="${toast != null}" class="toast toast--success" id="toast">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        <span th:text="${toast}">Succ&egrave;s</span>
+      </div>
+
+      <div class="approval-tabs">
+        <a th:href="@{/chef/missions(status='PENDING')}" class="approval-tab" th:classappend="${currentStatus == 'PENDING'} ? 'active'">En attente<span class="tab-count" th:text="${pendingCount}">0</span></a>
+        <a th:href="@{/chef/missions(status='PROCESSED')}" class="approval-tab" th:classappend="${currentStatus == 'PROCESSED'} ? 'active'">Trait&eacute;es<span class="tab-count" th:text="${processedCount}">0</span></a>
+        <a th:href="@{/chef/missions(status='ALL')}" class="approval-tab" th:classappend="${currentStatus == 'ALL'} ? 'active'">Toutes<span class="tab-count" th:text="${totalCount}">0</span></a>
+      </div>
+
+      <div th:if="${#lists.isEmpty(missions)}" class="card card--centered">
+        <div class="empty-state">
+          <div class="empty-state__icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          </div>
+          <div th:if="${currentStatus == 'PROCESSED'}" class="empty-state__title">Aucune mission trait&eacute;e</div>
+          <div th:if="${currentStatus == 'PROCESSED'}" class="empty-state__desc">Les missions que vous traiterez appara&icirc;tront ici avec leur statut final.</div>
+          <div th:if="${currentStatus == 'ALL'}" class="empty-state__title">Aucune mission</div>
+          <div th:if="${currentStatus == 'ALL'}" class="empty-state__desc">Aucune mission ne vous a &eacute;t&eacute; assign&eacute;e.</div>
+          <div th:if="${currentStatus != 'PROCESSED' && currentStatus != 'ALL'}" class="empty-state__title">Aucune mission en attente</div>
+          <div th:if="${currentStatus != 'PROCESSED' && currentStatus != 'ALL'}" class="empty-state__desc">Aucune mission ne vous a &eacute;t&eacute; assign&eacute;e pour approbation.</div>
+        </div>
+      </div>
+
+      <div th:unless="${#lists.isEmpty(missions)}" class="card card--flush">
+        <div class="table-wrapper table-to-cards mission-list-cards">
+          <table>
+            <thead>
+              <tr>
+                <th>Demandeur</th>
+                <th>Objet</th>
+                <th>Destination</th>
+                <th>Dates</th>
+                <th>V&eacute;hicule souhait&eacute;</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr th:each="m : ${missions}" class="row-clickable" th:data-url="@{/chef/approval/{id}(id=${m.id})}" onclick="location.href=this.dataset.url">
+                <td data-label="Demandeur" th:text="${m.requesterPrenom} + ' ' + ${m.requesterNom}">Demandeur</td>
+                <td data-label="Objet" th:text="${m.objet}">Objet</td>
+                <td data-label="Destination" th:text="${m.destination}">Destination</td>
+                <td data-label="Dates">
+                  <span class="date-time">
+                    <span class="date-time__date" th:text="${#temporals.format(m.dateDepart, 'dd/MM')} + ' - ' + ${#temporals.format(m.dateRetour, 'dd/MM/yyyy')}">Dates</span>
+                    <span class="date-time__time" th:text="${#temporals.format(m.dateDepart, 'HH:mm')} + ' - ' + ${#temporals.format(m.dateRetour, 'HH:mm')}">Heures</span>
+                  </span>
+                </td>
+                <td data-label="V&eacute;hicule" th:text="${m.vehicleInfo} ?: 'Non sp&eacute;cifi&eacute;'">V&eacute;hicule</td>
+                <td>
+                  <span class="badge" th:classappend="'badge--' + ${m.getStepStatutCss(1)}" th:text="${m.getStepStatutLabel(1)}">Statut</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+    <script th:if="${toast != null}">
+      (function() {
+        var toast = document.getElementById('toast');
+        if (toast) {
+          setTimeout(function() { toast.classList.add('hide'); }, 3500);
+          setTimeout(function() { toast.remove(); }, 3900);
+        }
+      })();
+    </script>
+  </div>
+</body>
+</html>

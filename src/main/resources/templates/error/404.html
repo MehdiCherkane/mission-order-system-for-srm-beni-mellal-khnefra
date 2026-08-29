@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(title='Page introuvable')}"></head>
+<body>
+  <div class="page-wrapper">
+    <header th:replace="~{fragments/layout :: header(user=${user})}"></header>
+    <main class="page-main">
+      <div class="card card--centered">
+        <div class="empty-state">
+          <div class="empty-state__icon" style="color:var(--color-warning)">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          </div>
+          <div class="empty-state__title">Page introuvable</div>
+          <div class="empty-state__desc">La page que vous cherchez n&rsquo;existe pas ou a &eacute;t&eacute; d&eacute;plac&eacute;e.</div>
+          <a th:href="@{/}" class="btn btn--primary">Retour &agrave; l&rsquo;accueil</a>
+        </div>
+      </div>
+    </main>
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+  </div>
+</body>
+</html>

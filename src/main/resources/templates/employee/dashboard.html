@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(title='Tableau de bord')}"></head>
+<body>
+  <div class="page-wrapper">
+    <header th:replace="~{fragments/layout :: header(user=${user})}"></header>
+    <main class="page-main page-main--wide">
+      <div class="dashboard-header">
+        <h1>Mes missions</h1>
+        <div class="action-buttons">
+          <a th:href="@{/employee/mission/new}" class="btn btn--primary">Nouvelle demande de mission</a>
+        </div>
+      </div>
+
+      <div class="filter-tabs" role="tablist">
+        <a th:href="@{/employee/dashboard(filter=all)}" class="filter-tab" th:classappend="${activeFilter == 'all'} ? 'active'">Toutes</a>
+        <a th:href="@{/employee/dashboard(filter='en_attente')}" class="filter-tab" th:classappend="${activeFilter == 'en_attente'} ? 'active'">En attente</a>
+        <a th:href="@{/employee/dashboard(filter='approuvees')}" class="filter-tab" th:classappend="${activeFilter == 'approuvees'} ? 'active'">Approuv&eacute;es</a>
+        <a th:href="@{/employee/dashboard(filter='rejetees')}" class="filter-tab" th:classappend="${activeFilter == 'rejetees'} ? 'active'">Rejet&eacute;es</a>
+      </div>
+
+      <div th:if="${#lists.isEmpty(missions)}" class="card card--centered">
+        <div class="empty-state">
+          <div class="empty-state__icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+          </div>
+          <div class="empty-state__title">Aucune mission trouv&eacute;e</div>
+          <div class="empty-state__desc">Vous n&rsquo;avez encore soumis aucune demande d&rsquo;ordre de mission.</div>
+          <a th:href="@{/employee/mission/new}" class="btn btn--primary">Nouvelle demande de mission</a>
+        </div>
+      </div>
+
+      <div th:unless="${#lists.isEmpty(missions)}" class="card card--flush">
+        <div class="table-wrapper table-to-cards">
+          <table>
+            <thead>
+              <tr>
+                <th>Objet</th>
+                <th>Destination</th>
+                <th>Date d&eacute;part</th>
+                <th>Statut</th>
+                <th>Derni&egrave;re mise &agrave; jour</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr th:each="m : ${missions}" class="row-clickable" th:data-url="@{/employee/mission/{id}(id=${m.id})}" onclick="location.href=this.dataset.url">
+                <td data-label="Objet" th:text="${m.objet}">Objet</td>
+                <td data-label="Destination" th:text="${m.destination}">Destination</td>
+                <td data-label="D&eacute;part">
+                  <span class="date-time">
+                    <span class="date-time__date" th:text="${#temporals.format(m.dateDepart, 'dd/MM/yyyy')}">01/01/2026</span>
+                    <span class="date-time__time" th:text="${#temporals.format(m.dateDepart, 'HH:mm')}">08:00</span>
+                  </span>
+                </td>
+                <td data-label="Statut">
+                  <span class="badge" th:classappend="'badge--' + ${m.statutCss}" th:text="${m.statutLabel}">Statut</span>
+                  <span class="badge-secondary" th:if="${m.currentApproverName != null && !m.currentApproverName.isEmpty()}" th:text="${m.currentApproverName}">Approbateur</span>
+                </td>
+                <td data-label="Mise &agrave; jour">
+                  <span class="date-time">
+                    <span class="date-time__date" th:text="${#temporals.format(m.dateCreation, 'dd/MM/yyyy')}">01/01/2026</span>
+                    <span class="date-time__time" th:text="${#temporals.format(m.dateCreation, 'HH:mm')}">08:00</span>
+                  </span>
+                </td>
+                <td>
+                  <a th:href="@{/employee/mission/{id}(id=${m.id})}" class="chevron-link">
+                    D&eacute;tail <span class="chevron-link__icon">&rsaquo;</span>
+                  </a>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+  </div>
+</body>
+</html>

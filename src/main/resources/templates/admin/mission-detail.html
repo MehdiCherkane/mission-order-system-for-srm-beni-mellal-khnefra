@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(title='Détail mission')}"></head>
+<body>
+  <div class="page-wrapper">
+    <header th:replace="~{fragments/layout :: header(user=${user})}"></header>
+    <main class="page-main page-main--wide">
+      <div class="detail-page-container">
+
+        <div class="detail-topbar">
+          <a th:href="@{/admin/missions}" class="detail-back">&larr; Retour aux missions</a>
+        </div>
+
+        <div class="card card--detail">
+          <div class="detail-header-row">
+            <div>
+              <h1 th:text="${mission.objet}">Objet</h1>
+              <div class="detail-meta-row">
+                <span th:text="${mission.destination}">Destination</span>
+                <span class="detail-meta-sep">&middot;</span>
+                <span class="date-time">
+                  <span class="date-time__date" th:text="${#temporals.format(mission.dateDepart, 'dd/MM/yyyy')}">Date</span>
+                  <span class="date-time__time" th:text="${#temporals.format(mission.dateDepart, 'HH:mm')}">Heure</span>
+                </span>
+                <span class="detail-meta-sep">&ndash;</span>
+                <span class="date-time">
+                  <span class="date-time__date" th:text="${#temporals.format(mission.dateRetour, 'dd/MM/yyyy')}">Date</span>
+                  <span class="date-time__time" th:text="${#temporals.format(mission.dateRetour, 'HH:mm')}">Heure</span>
+                </span>
+              </div>
+            </div>
+            <div class="detail-header-end">
+              <span class="badge badge--lg" th:classappend="'badge--' + ${mission.statutCss}" th:text="${mission.statutLabel}">Statut</span>
+            </div>
+          </div>
+
+          <div class="detail-grid metadata-grid">
+            <div class="detail-field mini-card">
+              <span class="detail-field__label">Demandeur</span>
+              <span class="detail-field__value" th:text="${mission.requesterPrenom + ' ' + mission.requesterNom}">Nom</span>
+            </div>
+            <div class="detail-field mini-card">
+              <span class="detail-field__label">Matricule</span>
+              <span class="detail-field__value" th:text="${mission.requesterMatricule}">Matricule</span>
+            </div>
+            <div class="detail-field mini-card">
+              <span class="detail-field__label">Fonction</span>
+              <span class="detail-field__value" th:text="${mission.requesterFonction}">Fonction</span>
+            </div>
+            <div class="detail-field mini-card">
+              <span class="detail-field__label">Service</span>
+              <span class="detail-field__value" th:text="${mission.requesterService}">Service</span>
+            </div>
+            <div class="detail-field mini-card">
+              <span class="detail-field__label">Direction</span>
+              <span class="detail-field__value" th:text="${mission.requesterDirection}">Direction</span>
+            </div>
+            <div class="detail-field mini-card">
+              <span class="detail-field__label">Moyen de transport</span>
+              <span class="detail-field__value" th:text="${mission.moyenTransport == 'vehicule_de_service'} ? 'Véhicule de service' : 'Véhicule personnel'">Transport</span>
+            </div>
+            <div class="detail-field mini-card" th:classappend="${!mission.combine} ? 'span-2' : ''">
+              <span class="detail-field__label">Véhicule</span>
+              <span class="detail-field__value" th:text="${mission.vehicleInfo} ?: 'Non spécifié'">Véhicule</span>
+            </div>
+            <div class="detail-field mini-card" th:if="${mission.combine}">
+              <span class="detail-field__label">Mission accompagnée</span>
+              <span class="detail-field__value">Oui</span>
+            </div>
+          </div>
+
+          <div class="detail-objet-box">
+            <span class="detail-field__label detail-field__label--block">Objet détaillé</span>
+            <div class="detail-objet-content" th:text="${mission.objet}">Objet</div>
+          </div>
+
+          <div th:if="${mission.combine && !#lists.isEmpty(mission.participants)}" class="card--section">
+            <span class="detail-field__label detail-field__label--block">Participants</span>
+            <div class="participant-chips">
+              <span class="participant-chip" th:each="p : ${mission.participants}" th:text="${p.prenom + ' ' + p.nom + ' (' + p.matricule + ')'}">Participant</span>
+            </div>
+          </div>
+
+          <div class="approval-section">
+            <span class="detail-field__label detail-field__label--block-lg">Circuit d'approbation</span>
+            <div class="timeline" th:if="${!#lists.isEmpty(mission.approvalSteps)}"
+                 th:classappend="${mission.statut == 'rejetee'} ? 'timeline--rejected' : ''">
+              <div class="timeline-item" th:each="step : ${mission.approvalSteps}"
+                   th:classappend="${step.statut == 'approuve'} ? 'completed' :
+                                   (${step.statut == 'rejete'} ? 'rejected' :
+                                   (${step.statut == 'annulee'} ? 'cancelled' :
+                                   (${mission.statut == 'rejetee'} ? 'stopped' : 'active')))">
+                <div class="timeline-item__content">
+                  <div class="timeline-item__title" th:text="${step.approverNom}">Approbateur</div>
+                  <div class="timeline-item__meta">
+                    <span th:switch="${step.statut}">
+                      <span th:case="'en_attente'" class="text-muted">En attente</span>
+                      <span th:case="'approuve'" class="text-success">Approuvé le <span class="date-time-inline"><span th:text="${#temporals.format(step.dateAction, 'dd/MM/yyyy')}">date</span> <span th:text="${#temporals.format(step.dateAction, 'HH:mm')}">heure</span></span></span>
+                      <span th:case="'rejete'" class="text-error">Rejeté le <span class="date-time-inline"><span th:text="${#temporals.format(step.dateAction, 'dd/MM/yyyy')}">date</span> <span th:text="${#temporals.format(step.dateAction, 'HH:mm')}">heure</span></span></span>
+                      <span th:case="'annulee'" class="text-muted">Annulée (mission rejetée en amont)</span>
+                      <span th:case="*">En attente</span>
+                    </span>
+                    <span class="timeline-item__role" th:if="${step.ordre == 1}">&mdash; Chef Hiérarchique</span>
+                    <span class="timeline-item__role" th:if="${step.ordre == 2}">&mdash; Directeur Provincial</span>
+                  </div>
+                </div>
+                <div class="timeline-item__comment" th:if="${step.commentaire != null && !step.commentaire.isEmpty()}" th:text="'Motif : ' + ${step.commentaire}">Commentaire</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="detail-actions" style="justify-content:flex-start; border-top: none; padding-top:0">
+          <a th:href="@{/admin/missions}" class="btn btn--outline">&larr; Retour aux missions</a>
+        </div>
+      </div>
+    </main>
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+  </div>
+</body>
+</html>

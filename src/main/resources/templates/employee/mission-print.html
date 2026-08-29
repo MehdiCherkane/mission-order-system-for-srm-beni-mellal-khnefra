@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="'Ordre de Mission N° ' + ${mission.id}">Ordre de Mission - SRM Béni Mellal - Khénifra</title>
+    <style>
+        @page {
+            size: A4 portrait;
+            margin: 10mm;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Times New Roman', Times, serif, 'Arial', sans-serif;
+            color: #000;
+            background-color: #f5f5f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            flex-direction: column;
+        }
+
+        .page {
+            width: 210mm;
+            min-height: 297mm;
+            background: #fff;
+            padding: 12mm 15mm;
+            position: relative;
+            box-shadow: 0 0 10px rgba(0,0,0,0.15);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .frame-border {
+            border: 1px dashed #555;
+            padding: 20px 25px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 50px;
+        }
+
+        .header-logo {
+            width: 120px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .logo-img {
+            width: 100px;
+            height: auto;
+        }
+
+        .header-text {
+            text-align: right;
+            flex-grow: 1;
+        }
+
+        .ar-title {
+            font-size: 17px;
+            font-weight: bold;
+            color: #1b365d;
+            direction: rtl;
+            font-family: 'Traditional Arabic', 'Amiri', serif;
+        }
+
+        .tifinagh-title {
+            font-size: 12px;
+            color: #2b547e;
+            margin: 2px 0;
+            font-family: sans-serif;
+        }
+
+        .fr-title {
+            font-size: 14px;
+            font-weight: bold;
+            color: #1b365d;
+            margin-top: 2px;
+        }
+
+        .ref-line {
+            display: flex;
+            justify-content: space-between;
+            font-size: 15px;
+            font-weight: bold;
+            margin-top: 15px;
+            margin-bottom: 40px;
+        }
+
+        .doc-title {
+            text-align: center;
+            font-size: 20px;
+            font-weight: bold;
+            text-decoration: underline;
+            margin-bottom: 50px;
+            letter-spacing: 0.5px;
+        }
+
+        .form-section {
+            font-size: 16px;
+            line-height: 2.2;
+        }
+
+        .dots-field {
+            display: inline-block;
+            min-width: 180px;
+            font-weight: 600;
+            font-family: 'Arial', sans-serif;
+        }
+
+        .dots-field-short {
+            display: inline-block;
+            min-width: 120px;
+            font-weight: 600;
+            font-family: 'Arial', sans-serif;
+        }
+
+        .dots-field-long {
+            display: inline-block;
+            min-width: 260px;
+            font-weight: 600;
+            font-family: 'Arial', sans-serif;
+        }
+
+        .details-list {
+            margin-top: 35px;
+            margin-left: 20px;
+            list-style: none;
+        }
+
+        .details-list li {
+            margin-bottom: 22px;
+            font-size: 16px;
+            display: flex;
+            align-items: baseline;
+        }
+
+        .details-list li .bullet {
+            margin-right: 12px;
+            font-size: 14px;
+        }
+
+        .details-list li .label {
+            font-weight: bold;
+            width: 230px;
+            display: flex;
+            justify-content: space-between;
+            padding-right: 15px;
+        }
+
+        .details-list li .value {
+            flex-grow: 1;
+            font-weight: 600;
+            font-family: 'Arial', sans-serif;
+        }
+
+        .participants-info {
+            margin-top: 20px;
+            margin-left: 20px;
+            font-size: 15px;
+        }
+        .participants-info strong {
+            font-size: 16px;
+        }
+        .participants-info .part-list {
+            margin-top: 4px;
+            margin-left: 28px;
+            font-weight: 600;
+            font-family: 'Arial', sans-serif;
+        }
+
+        .signature-section {
+            margin-top: 80px;
+            text-align: right;
+            padding-right: 40px;
+            margin-bottom: 10px;
+        }
+
+        .signature-title {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .signature-approval {
+            text-align: right;
+            padding-right: 40px;
+            font-size: 12px;
+            color: #059669;
+            font-style: italic;
+            margin-bottom: 80px;
+        }
+
+        .footer-container {
+            margin-top: auto;
+            position: relative;
+        }
+
+        .footer-content {
+            border-top: 1.5px solid #2b547e;
+            padding-top: 8px;
+            font-size: 10px;
+            color: #333;
+            text-align: center;
+            line-height: 1.5;
+        }
+
+        .footer-top-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 4px;
+        }
+
+        .footer-left {
+            text-align: left;
+            font-weight: bold;
+            color: #1b365d;
+        }
+
+        .footer-right {
+            text-align: right;
+            font-weight: bold;
+            color: #1b365d;
+            direction: rtl;
+        }
+
+        .footer-center-icon {
+            font-size: 14px;
+        }
+
+        .footer-bottom-row {
+            font-size: 9px;
+            color: #444;
+            border-top: 1px solid #eee;
+            padding-top: 4px;
+            margin-top: 4px;
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .no-print {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .no-print .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 24px;
+            font-size: 12pt;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            text-decoration: none;
+            font-family: 'Segoe UI', sans-serif;
+        }
+        .no-print .btn--primary {
+            background: #0d9488;
+            color: #fff;
+        }
+        .no-print .btn--primary:hover {
+            background: #0f766e;
+        }
+        .no-print .btn--outline {
+            background: transparent;
+            border: 1px solid #0d9488;
+            color: #0d9488;
+        }
+        .no-print .btn--outline:hover {
+            background: #f0fdfa;
+        }
+
+        @media print {
+            body {
+                background: none;
+                padding: 0;
+            }
+            .page {
+                box-shadow: none;
+                width: 100%;
+                height: 100vh;
+                padding: 0;
+            }
+            .frame-border {
+                height: 98vh;
+            }
+            .no-print {
+                display: none !important;
+            }
+            @page {
+                margin: 8mm;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="page">
+    <div class="frame-border">
+        <div>
+            <!-- Header Section -->
+            <div class="header">
+                <div class="header-logo">
+                    <img th:src="@{/logo.png}" alt="SRM" class="logo-img">
+                </div>
+                <div class="header-text">
+                    <div class="ar-title">الشركة الجهوية متعددة الخدمات بني ملال – خنيفرة ش.م</div>
+                    <div class="tifinagh-title">ⵜⵓⵛⵓⵠⵓⵜ ⵜⵓⵍⵞⵍⵓⴹⵜ ⵞⵓⵅⵜ ⵞⵗⵞⵓ ⵞⵓⵚ ⵞⵧⵓⵞ ⵞⵧⵚⵓⵓ ⵞ.ⵞ</div>
+                    <div class="fr-title">Société Régionale Multiservices Béni Mellal - Khénifra S.A</div>
+                </div>
+            </div>
+
+            <!-- Reference Line -->
+            <div class="ref-line">
+                <span>Référence : <span class="dots-field-short" th:text="${mission.missionNumber}">REF</span></span>
+                <span>المرجع : <span class="dots-field-short" th:text="${mission.missionNumber}">REF</span></span>
+            </div>
+
+            <!-- Title -->
+            <div class="doc-title">
+                ORDRE DE MISSION N° <span th:text="${mission.missionNumber}">...</span> /2026
+            </div>
+
+            <!-- Form Content -->
+            <div class="form-section">
+                <p style="margin-bottom: 15px;">
+                    <strong>Monsieur</strong> <span class="dots-field" th:text="${mission.requesterPrenom} + ' ' + ${mission.requesterNom}">Nom</span> 
+                    <strong>; Mle :</strong> <span class="dots-field-short" th:text="${mission.requesterMatricule}">Matricule</span> 
+                    <strong>, est autorisé à se déplacer</strong>
+                </p>
+                <p>
+                    <strong>pour les besoins de service</strong>
+                    <th:block th:if="${mission.vehicle != null}">
+                        <strong>à bord du véhicule immatriculé :</strong> <span class="dots-field-long" th:text="${mission.vehicleInfo}">Véhicule</span>
+                    </th:block>
+                    <th:block th:if="${mission.vehicle == null}">
+                        <strong><th:block th:if="${mission.moyenTransport == 'vehicule_personnel'}">avec son véhicule personnel</th:block><th:block th:if="${mission.moyenTransport != 'vehicule_personnel'}">à bord d'un véhicule de service</th:block></strong>
+                    </th:block>
+                </p>
+
+                <ul class="details-list">
+                    <li>
+                        <span class="bullet">❖</span>
+                        <span class="label"><span>Destination</span><span>:</span></span>
+                        <span class="value" th:text="${mission.destination}">Destination</span>
+                    </li>
+                    <li>
+                        <span class="bullet">❖</span>
+                        <span class="label"><span>Motif</span><span>:</span></span>
+                        <span class="value" th:text="${mission.objet}">Motif</span>
+                    </li>
+                    <li>
+                        <span class="bullet">❖</span>
+                        <span class="label"><span>Date et l'heure de départ</span><span>:</span></span>
+                        <span class="value" th:text="${#temporals.format(mission.dateDepart, 'dd/MM/yyyy HH:mm')}">Départ</span>
+                    </li>
+                    <li>
+                        <span class="bullet">❖</span>
+                        <span class="label"><span>Date et l'heure de retour</span><span>:</span></span>
+                        <span class="value" th:text="${#temporals.format(mission.dateRetour, 'dd/MM/yyyy HH:mm')}">Retour</span>
+                    </li>
+                </ul>
+
+                <div class="participants-info" th:if="${mission.combine && !#lists.isEmpty(mission.participants)}">
+                    <strong>Participants accompagnateurs :</strong>
+                    <div class="part-list" th:each="p : ${mission.participants}" th:text="${p.prenom} + ' ' + ${p.nom} + ' (' + ${p.fonction} + ')'">
+                        Participant
+                    </div>
+                </div>
+            </div>
+
+            <!-- Signature Section -->
+            <div class="signature-section">
+                <div class="signature-title">Directeur Provincial</div>
+            </div>
+            <div class="signature-approval" th:each="step : ${mission.approvalSteps}" th:if="${step.ordre == 2 && step.statut == 'approuve'}">
+                Approuvé par <span th:text="${step.approverNom}">Nadia El Amrani</span>
+                le <span th:text="${#temporals.format(step.dateAction, 'dd/MM/yyyy')}">date</span>
+            </div>
+        </div>
+
+        <!-- Footer Section -->
+        <div class="footer-container">
+            <div class="footer-content">
+                <div class="footer-top-row">
+                    <div class="footer-left">
+                        Société Régionale Multiservices Béni Mellal - Khénifra S.A<br>
+                        <span style="font-weight: normal; color: #555;">Siège Social: Bd Omar Ibn Al Khattab - B.P. 174, Béni Mellal</span>
+                    </div>
+                    <div class="footer-center-icon">
+                        <svg width="10" height="10" viewBox="0 0 10 10" fill="#444"><rect x="2" y="2" width="6" height="6"/></svg>
+                    </div>
+                    <div class="footer-right">
+                        الشركة الجهوية متعددة الخدمات بني ملال - خنيفرة ش.م<br>
+                        <span style="font-weight: normal; color: #555;">المقر الرئيسي: شارع عمر بن الخطاب - ص.ب: 174، بني ملال</span>
+                    </div>
+                </div>
+                <div class="footer-bottom-row">
+                    <span><strong>ICE :</strong> 003659660000073</span>
+                    <span><strong>IF :</strong> 66996362</span>
+                    <span><strong>RC :</strong> 16677</span>
+                    <span><strong>TP :</strong> 41904094</span>
+                    <span><strong>C.R.C.</strong> 05 23 48 32 07</span>
+                    <span><strong>F.A.X.</strong> 05 23 48 33 87</span>
+                    <span><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg> contact@srm-bk.ma</span>
+                    <span><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg> www.srm-bk.ma</span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div class="no-print">
+    <button class="btn btn--primary" onclick="window.print()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><path d="M6 14h12v8H6z"/></svg>
+        Imprimer
+    </button>
+    <a th:href="@{/employee/mission/{id}(id=${mission.id})}" class="btn btn--outline" style="margin-left:8px">Retour</a>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(title='V&eacute;hicules')}"></head>
+<body>
+  <div class="page-wrapper">
+    <header th:replace="~{fragments/layout :: header(user=${user})}"></header>
+    <main class="page-main page-main--wide">
+      <div class="dashboard-header">
+        <h1>Gestion des v&eacute;hicules</h1>
+        <div class="action-buttons">
+          <button type="button" class="btn btn--primary" onclick="document.getElementById('addVehicleForm').style.display='block'">Ajouter un v&eacute;hicule</button>
+        </div>
+      </div>
+
+      <div th:if="${vehicleError != null}" class="alert alert--error" th:text="${vehicleError}">Erreur</div>
+
+      <div class="card" id="addVehicleForm" style="display:none">
+        <h2>Ajouter un v&eacute;hicule</h2>
+        <form method="post" th:action="@{/admin/vehicles/add}" style="margin-top:1rem">
+          <div class="form-row">
+            <div class="form-group form-group--half">
+              <label for="matricule" class="form-label">Matricule <span class="required">*</span></label>
+              <input type="text" id="matricule" name="matricule" class="form-input" required placeholder="Ex: 1234-A-5678">
+            </div>
+            <div class="form-group form-group--half">
+              <label for="modele" class="form-label">Mod&egrave;le <span class="required">*</span></label>
+              <input type="text" id="modele" name="modele" class="form-input" required placeholder="Ex: Dacia Logan">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="serviceRattache" class="form-label">Service rattach&eacute; <span class="required">*</span></label>
+            <input type="text" id="serviceRattache" name="serviceRattache" class="form-input" required placeholder="Ex: Service Technique">
+          </div>
+          <div class="form-actions">
+            <button type="button" class="btn btn--outline" onclick="this.closest('#addVehicleForm').style.display='none'">Annuler</button>
+            <button type="submit" class="btn btn--primary">Ajouter</button>
+          </div>
+        </form>
+      </div>
+
+      <div th:if="${#lists.isEmpty(vehicles)}" class="card card--centered">
+        <div class="empty-state">
+          <div class="empty-state__icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+          </div>
+          <div class="empty-state__title">Aucun v&eacute;hicule enregistr&eacute;</div>
+          <div class="empty-state__desc">Ajoutez un premier v&eacute;hicule pour commencer &agrave; g&eacute;rer la flotte.</div>
+          <button type="button" class="btn btn--primary" onclick="document.getElementById('addVehicleForm').style.display='block'">Ajouter un v&eacute;hicule</button>
+        </div>
+      </div>
+
+      <div th:unless="${#lists.isEmpty(vehicles)}" class="card card--flush">
+        <div class="table-wrapper table-to-cards">
+          <table>
+            <thead>
+              <tr>
+                <th>Matricule</th>
+                <th>Mod&egrave;le</th>
+                <th>Service rattach&eacute;</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr th:each="v : ${vehicles}">
+                <td data-label="Matricule" th:text="${v.matricule}">Matricule</td>
+                <td data-label="Mod&egrave;le" th:text="${v.modele}">Mod&egrave;le</td>
+                <td data-label="Service" th:text="${v.serviceRattache}">Service</td>
+                <td>
+                  <form method="post" th:action="@{/admin/vehicles/delete/{id}(id=${v.id})}" style="display:inline" onsubmit="return confirm('Supprimer ce v&eacute;hicule ?')">
+                    <button type="submit" class="btn btn--danger btn--sm">Supprimer</button>
+                  </form>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+  </div>
+</body>
+</html>

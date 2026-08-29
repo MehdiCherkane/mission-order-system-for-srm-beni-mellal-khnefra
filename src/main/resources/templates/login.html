@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Connexion — SRM Ordres de Mission</title>
+  <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+  <div class="auth-layout">
+    <div class="auth-card">
+      <div class="auth-card__logo">
+        <img th:src="@{/logo.png}" alt="SRM" class="auth-card__logo-img">
+      </div>
+      <h1 class="auth-card__title">Ordres de Mission</h1>
+      <p class="auth-card__subtitle">SRM Beni Mellal-Kh&eacute;nifra</p>
+
+      <div th:if="${param.error != null}" class="alert alert--error">
+        Matricule ou mot de passe incorrect.
+      </div>
+      <div th:if="${param.logout != null}" class="alert alert--success">
+        Vous avez &eacute;t&eacute; d&eacute;connect&eacute; avec succ&egrave;s.
+      </div>
+      <div th:if="${param.expired != null}" class="alert alert--warning">
+        Votre session a expir&eacute;. Veuillez vous reconnecter.
+      </div>
+
+      <form method="post" th:action="@{/login}" novalidate id="loginForm">
+        <div class="form-group">
+          <label for="matricule" class="form-label">Matricule</label>
+          <input type="text" id="matricule" name="matricule" class="form-input" required placeholder="Votre matricule" autofocus>
+        </div>
+
+        <div class="form-group">
+          <label for="motDePasse" class="form-label">Mot de passe</label>
+          <div class="password-field">
+            <input type="password" id="motDePasse" name="motDePasse" class="form-input" required placeholder="Votre mot de passe">
+            <button type="button" class="password-toggle" id="pwToggle" tabindex="-1" aria-label="Afficher le mot de passe">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn--auth btn--full" id="submitBtn">Se connecter</button>
+      </form>
+
+      <div class="auth-card__footer">
+        <a href="#">Mot de passe oubli&eacute; ?</a><br>
+        <small>Comptes provisionn&eacute;s par l'administration SRM</small>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('loginForm')?.addEventListener('submit', function() {
+      document.getElementById('submitBtn').disabled = true;
+      document.getElementById('submitBtn').classList.add('btn--loading');
+    });
+
+    var toggle = document.getElementById('pwToggle');
+    var input = document.getElementById('motDePasse');
+    if (toggle && input) {
+      toggle.addEventListener('click', function() {
+        var isPw = input.type === 'password';
+        input.type = isPw ? 'text' : 'password';
+        this.innerHTML = isPw
+          ? '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>'
+          : '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
+      });
+    }
+  </script>
+</body>
+</html>

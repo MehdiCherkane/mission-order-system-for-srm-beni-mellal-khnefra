@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(title='Employés')}"></head>
+<body>
+  <div class="page-wrapper">
+    <header th:replace="~{fragments/layout :: header(user=${user})}"></header>
+    <main class="page-main page-main--wide">
+
+      <div class="dashboard-header">
+        <h1>Gestion des employés</h1>
+        <div class="action-buttons">
+          <a th:href="@{/admin/employees/new}" class="btn btn--primary">Ajouter un employé</a>
+        </div>
+      </div>
+
+      <div th:if="${employeeSuccess != null}" class="alert alert--success" th:text="${employeeSuccess}"></div>
+      <div th:if="${employeeError != null}" class="alert alert--error" th:text="${employeeError}"></div>
+
+      <form method="get" th:action="@{/admin/employees}" class="card" style="margin-bottom:1rem">
+        <div class="form-row">
+          <div class="form-group form-group--half">
+            <label class="form-label" for="q">Rechercher</label>
+            <input class="form-input" type="text" id="q" name="q" th:value="${q}" placeholder="Nom, prénom ou matricule...">
+          </div>
+          <div class="form-group form-group--half">
+            <label class="form-label" for="role">Rôle</label>
+            <select class="form-select" id="role" name="role">
+              <option value="all" th:selected="${role == 'all'}">Tous</option>
+              <option th:each="r : ${roles}" th:value="${r}" th:text="${r}" th:selected="${role == r}"></option>
+            </select>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn btn--primary">Filtrer</button>
+          <a th:href="@{/admin/employees}" class="btn btn--outline">Réinitialiser</a>
+        </div>
+      </form>
+
+      <div class="card card--flush">
+        <div class="table-wrapper table-to-cards">
+          <table>
+            <thead>
+              <tr>
+                <th>Matricule</th>
+                <th>Nom</th>
+                <th>Fonction</th>
+                <th>Service</th>
+                <th>Rôle</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr th:each="e : ${employees}">
+                <td data-label="Matricule" th:text="${e.matricule}"></td>
+                <td data-label="Nom" th:text="${e.prenom + ' ' + e.nom}"></td>
+                <td data-label="Fonction" th:text="${e.fonction}"></td>
+                <td data-label="Service" th:text="${e.service}"></td>
+                <td data-label="Rôle"><span class="badge badge--under-review" th:text="${e.role}"></span></td>
+                <td>
+                  <a th:href="@{/admin/employees/{id}/edit(id=${e.id})}" class="btn btn--outline btn--sm">Éditer</a>
+                  <form method="post" th:action="@{/admin/employees/{id}/delete(id=${e.id})}" style="display:inline" onsubmit="return confirm('Supprimer cet employé ?')">
+                    <button type="submit" class="btn btn--danger btn--sm">Supprimer</button>
+                  </form>
+                </td>
+              </tr>
+              <tr th:if="${#lists.isEmpty(employees)}">
+                <td colspan="6" style="text-align:center; color:var(--muted); padding:2rem">Aucun employé trouvé</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+  </div>
+</body>
+</html>

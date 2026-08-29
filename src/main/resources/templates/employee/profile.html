@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(title='Mon profil')}"></head>
+<body>
+  <div class="page-wrapper">
+    <header th:replace="~{fragments/layout :: header(user=${user})}"></header>
+    <main class="page-main">
+      <h1>Mon profil</h1>
+      <p class="subtitle">Vos informations personnelles et professionnelles.</p>
+
+      <div class="card">
+        <div class="detail-grid">
+          <div class="detail-field">
+            <span class="detail-field__label">Nom</span>
+            <span class="detail-field__value" th:text="${user.nom}">Nom</span>
+          </div>
+          <div class="detail-field">
+            <span class="detail-field__label">Pr&eacute;nom</span>
+            <span class="detail-field__value" th:text="${user.prenom}">Pr&eacute;nom</span>
+          </div>
+          <div class="detail-field">
+            <span class="detail-field__label">Matricule</span>
+            <span class="detail-field__value" th:text="${user.matricule}">Matricule</span>
+          </div>
+          <div class="detail-field">
+            <span class="detail-field__label">Fonction</span>
+            <span class="detail-field__value" th:text="${user.fonction}">Fonction</span>
+          </div>
+          <div class="detail-field">
+            <span class="detail-field__label">Service</span>
+            <span class="detail-field__value" th:text="${user.service}">Service</span>
+          </div>
+          <div class="detail-field">
+            <span class="detail-field__label">Direction</span>
+            <span class="detail-field__value" th:text="${user.direction}">Direction</span>
+          </div>
+          <div class="detail-field">
+            <span class="detail-field__label">R&ocirc;le</span>
+            <span class="detail-field__value" th:text="${user.role == 'EMPLOYEE'} ? 'Employ&eacute;' : (${user.role == 'CHEF_HIERARCHIQUE'} ? 'Chef Hi&eacute;rarchique' : 'Directeur Provincial')">R&ocirc;le</span>
+          </div>
+          <div class="detail-field">
+            <span class="detail-field__label">Email</span>
+            <span class="detail-field__value" th:text="${user.email}">Email</span>
+          </div>
+        </div>
+      </div>
+    </main>
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+  </div>
+</body>
+</html>

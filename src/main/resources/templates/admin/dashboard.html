@@ -1,0 +1,113 @@
+﻿<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(title='Tableau de bord admin')}"></head>
+<body>
+  <div class="page-wrapper">
+    <header th:replace="~{fragments/layout :: header(user=${user})}"></header>
+    <main class="page-main page-main--wide">
+      <div class="dashboard-header">
+        <h1>Tableau de bord administrateur</h1>
+        <div class="action-buttons">
+          <a th:href="@{/admin/employees}" class="btn btn--outline">Employés</a>
+          <a th:href="@{/admin/missions}" class="btn btn--primary">Toutes les missions</a>
+        </div>
+      </div>
+
+      <section class="kpi-section">
+        <h2 class="kpi-section__title">Vue d'ensemble</h2>
+        <div class="kpi-grid">
+          <div class="kpi-card">
+            <div class="kpi-card__body">
+              <span class="kpi-card__value" th:text="${totalEmployees}">0</span>
+              <span class="kpi-card__label">Employés</span>
+            </div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-card__body">
+              <span class="kpi-card__value" th:text="${totalVehicles}">0</span>
+              <span class="kpi-card__label">Véhicules</span>
+            </div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-card__body">
+              <span class="kpi-card__value" th:text="${totalMissions}">0</span>
+              <span class="kpi-card__label">Missions (total)</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="kpi-section">
+        <h2 class="kpi-section__title">Statut des missions</h2>
+        <div class="kpi-grid kpi-grid--status">
+          <div class="kpi-card kpi-card--warning">
+            <div class="kpi-card__body">
+              <span class="kpi-card__value" th:text="${counts['en_attente_chef'] != null ? counts['en_attente_chef'] : 0}">0</span>
+              <span class="kpi-card__label">En attente Chef</span>
+            </div>
+          </div>
+          <div class="kpi-card kpi-card--warning">
+            <div class="kpi-card__body">
+              <span class="kpi-card__value" th:text="${counts['en_attente_directeur'] != null ? counts['en_attente_directeur'] : 0}">0</span>
+              <span class="kpi-card__label">En attente Directeur</span>
+            </div>
+          </div>
+          <div class="kpi-card kpi-card--success">
+            <div class="kpi-card__body">
+              <span class="kpi-card__value" th:text="${counts['approuvee'] != null ? counts['approuvee'] : 0}">0</span>
+              <span class="kpi-card__label">Approuvées</span>
+            </div>
+          </div>
+          <div class="kpi-card kpi-card--danger">
+            <div class="kpi-card__body">
+              <span class="kpi-card__value" th:text="${counts['rejetee'] != null ? counts['rejetee'] : 0}">0</span>
+              <span class="kpi-card__label">Rejetées</span>
+            </div>
+          </div>
+          <div class="kpi-card kpi-card--info">
+            <div class="kpi-card__body">
+              <span class="kpi-card__value" th:text="${counts['soumise'] != null ? counts['soumise'] : 0}">0</span>
+              <span class="kpi-card__label">Soumises</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="kpi-section">
+        <h2 class="kpi-section__title">Raccourcis</h2>
+        <div class="shortcut-list">
+          <div class="shortcut-card" th:data-url="@{/admin/employees}" onclick="location.href=this.dataset.url">
+            <div>
+              <div class="shortcut-card__title">Employés</div>
+              <div class="shortcut-card__desc">Gérer les comptes, rôles, mots de passe</div>
+            </div>
+            <span class="shortcut-card__action">Ouvrir <span class="shortcut-card__arrow">›</span></span>
+          </div>
+          <div class="shortcut-card" th:data-url="@{/admin/missions}" onclick="location.href=this.dataset.url">
+            <div>
+              <div class="shortcut-card__title">Missions</div>
+              <div class="shortcut-card__desc">Vue d'ensemble de toutes les missions</div>
+            </div>
+            <span class="shortcut-card__action">Ouvrir <span class="shortcut-card__arrow">›</span></span>
+          </div>
+          <div class="shortcut-card" th:data-url="@{/admin/vehicles}" onclick="location.href=this.dataset.url">
+            <div>
+              <div class="shortcut-card__title">Véhicules</div>
+              <div class="shortcut-card__desc">Gestion de la flotte de véhicules</div>
+            </div>
+            <span class="shortcut-card__action">Ouvrir <span class="shortcut-card__arrow">›</span></span>
+          </div>
+          <div class="shortcut-card" th:data-url="@{/admin/settings}" onclick="location.href=this.dataset.url">
+            <div>
+              <div class="shortcut-card__title">Paramètres</div>
+              <div class="shortcut-card__desc">Approbateurs par défaut</div>
+            </div>
+            <span class="shortcut-card__action">Ouvrir <span class="shortcut-card__arrow">›</span></span>
+          </div>
+        </div>
+      </section>
+    </main>
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+  </div>
+</body>
+</html>

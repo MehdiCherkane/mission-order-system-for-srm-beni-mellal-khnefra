@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(title='Employé')}"></head>
+<body>
+  <div class="page-wrapper">
+    <header th:replace="~{fragments/layout :: header(user=${user})}"></header>
+    <main class="page-main page-main--narrow">
+
+      <div class="detail-topbar">
+        <a th:href="@{/admin/employees}" class="detail-back">&larr; Retour</a>
+      </div>
+
+      <div class="card">
+        <h1 th:text="${isNew} ? 'Nouvel employé' : 'Modifier employé'"></h1>
+
+        <div th:if="${employeeSuccess != null}" class="alert alert--success" th:text="${employeeSuccess}"></div>
+        <div th:if="${employeeError != null}" class="alert alert--error" th:text="${employeeError}"></div>
+
+        <form method="post" th:action="${formAction}" novalidate>
+          <!-- Matricule -->
+          <div class="form-group">
+            <label for="matricule" class="form-label">Matricule <span class="required">*</span></label>
+            <input type="text" id="matricule" name="matricule" class="form-input" required
+                   th:classappend="${errors != null and errors.containsKey('matricule')} ? 'error'"
+                   th:value="${submittedMatricule != null ? submittedMatricule : editEmployee.matricule}">
+            <span class="form-error" th:classappend="${errors != null and errors.containsKey('matricule')} ? 'visible'" th:text="${errors != null ? errors.get('matricule') : ''}"></span>
+          </div>
+
+          <!-- Nom -->
+          <div class="form-group">
+            <label for="nom" class="form-label">Nom <span class="required">*</span></label>
+            <input type="text" id="nom" name="nom" class="form-input" required
+                   th:classappend="${errors != null and errors.containsKey('nom')} ? 'error'"
+                   th:value="${submittedNom != null ? submittedNom : editEmployee.nom}">
+            <span class="form-error" th:classappend="${errors != null and errors.containsKey('nom')} ? 'visible'" th:text="${errors != null ? errors.get('nom') : ''}"></span>
+          </div>
+
+          <!-- Prénom -->
+          <div class="form-group">
+            <label for="prenom" class="form-label">Prénom <span class="required">*</span></label>
+            <input type="text" id="prenom" name="prenom" class="form-input" required
+                   th:classappend="${errors != null and errors.containsKey('prenom')} ? 'error'"
+                   th:value="${submittedPrenom != null ? submittedPrenom : editEmployee.prenom}">
+            <span class="form-error" th:classappend="${errors != null and errors.containsKey('prenom')} ? 'visible'" th:text="${errors != null ? errors.get('prenom') : ''}"></span>
+          </div>
+
+          <!-- Fonction -->
+          <div class="form-group">
+            <label for="fonction" class="form-label">Fonction</label>
+            <input type="text" id="fonction" name="fonction" class="form-input"
+                   th:value="${submittedFonction != null ? submittedFonction : editEmployee.fonction}">
+          </div>
+
+          <!-- Service -->
+          <div class="form-group">
+            <label for="service" class="form-label">Service</label>
+            <input type="text" id="service" name="service" class="form-input"
+                   th:value="${submittedService != null ? submittedService : editEmployee.service}">
+          </div>
+
+          <!-- Direction -->
+          <div class="form-group">
+            <label for="direction" class="form-label">Direction</label>
+            <input type="text" id="direction" name="direction" class="form-input"
+                   th:value="${submittedDirection != null ? submittedDirection : editEmployee.direction}">
+          </div>
+
+          <!-- Rôle -->
+          <div class="form-group">
+            <label for="role" class="form-label">Rôle <span class="required">*</span></label>
+            <select id="role" name="role" class="form-select" required
+                    th:classappend="${errors != null and errors.containsKey('role')} ? 'error'">
+              <option value="">Sélectionnez...</option>
+              <option th:each="r : ${roles}" th:value="${r}" th:text="${r}"
+                      th:selected="${submittedRole != null ? submittedRole == r : editEmployee.role == r}"></option>
+            </select>
+            <span class="form-error" th:classappend="${errors != null and errors.containsKey('role')} ? 'visible'" th:text="${errors != null ? errors.get('role') : ''}"></span>
+          </div>
+
+          <!-- Email -->
+          <div class="form-group">
+            <label for="email" class="form-label">Email</label>
+            <input type="email" id="email" name="email" class="form-input"
+                   th:value="${submittedEmail != null ? submittedEmail : editEmployee.email}">
+          </div>
+
+          <!-- Mot de passe (only on create or reset) -->
+          <div class="form-group" th:if="${isNew}">
+            <label for="motDePasse" class="form-label">Mot de passe <span class="required">*</span></label>
+            <input type="password" id="motDePasse" name="motDePasse" class="form-input"
+                   th:classappend="${errors != null and errors.containsKey('motDePasse')} ? 'error'"
+                   th:required="${isNew}">
+            <span class="form-hint">6 caractères minimum.</span>
+            <span class="form-error" th:classappend="${errors != null and errors.containsKey('motDePasse')} ? 'visible'" th:text="${errors != null ? errors.get('motDePasse') : ''}"></span>
+          </div>
+
+          <div class="form-actions">
+            <a th:href="@{/admin/employees}" class="btn btn--outline">Annuler</a>
+            <button type="submit" class="btn btn--primary" th:text="${isNew} ? 'Créer' : 'Enregistrer'">Enregistrer</button>
+          </div>
+        </form>
+
+        <!-- Password reset form for existing users -->
+          <div th:unless="${isNew}" style="margin-top:2rem; border-top:1px solid var(--border); padding-top:1.5rem;">
+          <h2>Réinitialiser le mot de passe</h2>
+          <form method="post" th:action="@{/admin/employees/{id}/reset-password(id=${editEmployee.id})}" novalidate>
+            <div class="form-group">
+              <label for="resetMotDePasse" class="form-label">Nouveau mot de passe <span class="required">*</span></label>
+              <input type="password" id="resetMotDePasse" name="motDePasse" class="form-input" required minlength="6">
+              <div class="form-hint">6 caractères minimum. L'employé utilisera ce mot de passe à sa prochaine connexion.</div>
+            </div>
+            <div class="form-actions">
+              <button type="submit" class="btn btn--warning" onclick="return confirm('Réinitialiser le mot de passe ?')">Réinitialiser</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </main>
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+  </div>
+</body>
+</html>

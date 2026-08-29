@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="head(title)">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${title} + ' — SRM Ordres de Mission'">SRM</title>
+  <link rel="stylesheet" th:href="@{/css/style.css?v=2}">
+</head>
+<body>
+  <header class="page-header" th:fragment="header(user)">
+    <a th:href="@{/}" class="page-header__logo">
+      <img th:src="@{/logo.png}" alt="SRM" class="page-header__logo-img">
+      <span>SRM Missions</span>
+    </a>
+    <button class="nav-toggle" id="navToggle" aria-label="Menu" onclick="document.getElementById('mainNav').classList.toggle('open')">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+    <nav class="page-header__nav" id="mainNav">
+      <th:block th:if="${user != null}">
+        <th:block th:switch="${user.role}">
+          <a th:case="'EMPLOYEE'" th:href="@{/employee/dashboard}" class="btn btn--outline btn--sm">Tableau de bord</a>
+          <a th:case="'CHEF_HIERARCHIQUE'" th:href="@{/chef/pending}" class="btn btn--outline btn--sm">Approbations</a>
+          <a th:case="'DIRECTEUR'" th:href="@{/directeur/pending}" class="btn btn--outline btn--sm">Approbations</a>
+          <a th:case="'ADMIN'" th:href="@{/admin/dashboard}" class="btn btn--outline btn--sm">Admin</a>
+          <a th:case="*" th:href="@{/employee/dashboard}" class="btn btn--outline btn--sm">Tableau de bord</a>
+       </th:block>
+        <a th:if="${user.role == 'ADMIN'}" th:href="@{/admin/employees}" class="btn btn--outline btn--sm">Employ&eacute;s</a>
+        <a th:if="${user.role == 'ADMIN'}" th:href="@{/admin/missions}" class="btn btn--outline btn--sm">Missions</a>
+        <a th:if="${user.role == 'ADMIN'}" th:href="@{/admin/vehicles}" class="btn btn--outline btn--sm">V&eacute;hicules</a>
+        <a th:if="${user.role == 'ADMIN'}" th:href="@{/admin/settings}" class="btn btn--outline btn--sm">Param&egrave;tres</a>
+        <a th:href="@{/employee/profile}" class="btn btn--outline btn--sm">Profil</a>
+        <form th:action="@{/logout}" method="post" style="display:inline">
+          <button type="submit" class="btn btn--outline btn--sm">D&eacute;connexion</button>
+       </form>
+     </th:block>
+    </nav>
+    <script>
+      document.addEventListener('click', function(e) {
+        var nav = document.getElementById('mainNav');
+        var toggle = document.getElementById('navToggle');
+        if (nav && toggle && !nav.contains(e.target) && !toggle.contains(e.target)) {
+          nav.classList.remove('open');
+        }
+      });
+    </script>
+  </header>
+
+  <footer class="page-footer" th:fragment="footer">
+    &copy; <span th:text="${#dates.year(#dates.createNow())}">2026</span> SRM Beni Mellal-Kh&eacute;nifra &mdash; Syst&egrave;me d'Ordres de Mission
+  </footer>
+</body>
+</html>

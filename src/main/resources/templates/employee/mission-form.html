@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(title='Nouvelle mission')}"></head>
+<body>
+  <div class="page-wrapper">
+    <header th:replace="~{fragments/layout :: header(user=${user})}"></header>
+    <main class="page-main page-main--wide">
+      <h1>Nouvelle demande de mission</h1>
+      <p class="subtitle">Remplissez les champs ci-dessous pour soumettre une demande d'ordre de mission.</p>
+      <div th:if="${errors != null and errors.containsKey('routing')}" class="alert alert--error"
+           th:text="${errors.get('routing')}"></div>
+
+      <div class="card">
+        <h2>Informations personnelles</h2>
+        <div class="info-grid">
+          <div class="info-field">
+            <span class="info-field__label">Nom</span>
+            <span class="info-field__value" th:text="${user.nom}">Nom</span>
+          </div>
+          <div class="info-field">
+            <span class="info-field__label">Pr&eacute;nom</span>
+            <span class="info-field__value" th:text="${user.prenom}">Pr&eacute;nom</span>
+          </div>
+          <div class="info-field">
+            <span class="info-field__label">Matricule</span>
+            <span class="info-field__value" th:text="${user.matricule}">Matricule</span>
+          </div>
+          <div class="info-field">
+            <span class="info-field__label">Fonction</span>
+            <span class="info-field__value" th:text="${user.fonction}">Fonction</span>
+          </div>
+          <div class="info-field">
+            <span class="info-field__label">Service</span>
+            <span class="info-field__value" th:text="${user.service}">Service</span>
+          </div>
+          <div class="info-field">
+            <span class="info-field__label">Direction</span>
+            <span class="info-field__value" th:text="${user.direction}">Direction</span>
+          </div>
+        </div>
+      </div>
+
+      <form method="post" th:action="@{/employee/mission/save}" novalidate id="missionForm">
+        <div class="card">
+          <h2>D&eacute;tails de la mission</h2>
+
+          <div class="form-group">
+            <label for="objet" class="form-label">Objet de la mission <span class="required">*</span></label>
+            <textarea id="objet" name="objet" class="form-textarea" required placeholder="D&eacute;crivez l'objet de votre mission..." maxlength="500" th:classappend="${errors != null and errors.containsKey('objet')} ? 'error'" th:text="${submittedObjet}"></textarea>
+            <span class="form-error" id="objet-error" th:classappend="${errors != null and errors.containsKey('objet')} ? 'visible'" th:text="${errors != null ? errors.get('objet') : ''}"></span>
+            <div class="char-counter" id="objet-counter">0 / 500</div>
+          </div>
+
+          <div class="form-group">
+            <label for="destination" class="form-label">Destination <span class="required">*</span></label>
+            <input type="text" id="destination" name="destination" class="form-input" required placeholder="Ex: Beni Mellal, Khenifra..." th:value="${submittedDestination}" th:classappend="${errors != null and errors.containsKey('destination')} ? 'error'">
+            <span class="form-error" id="destination-error" th:classappend="${errors != null and errors.containsKey('destination')} ? 'visible'" th:text="${errors != null ? errors.get('destination') : ''}"></span>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group form-group--half">
+              <label for="dateDepart" class="form-label">Date et heure de d&eacute;part <span class="required">*</span></label>
+              <input type="datetime-local" id="dateDepart" name="dateDepart" class="form-input" required th:value="${submittedDateDepart}" th:classappend="${errors != null and errors.containsKey('dateDepart')} ? 'error'">
+              <span class="form-error" id="dateDepart-error" th:classappend="${errors != null and errors.containsKey('dateDepart')} ? 'visible'" th:text="${errors != null ? errors.get('dateDepart') : ''}"></span>
+            </div>
+            <div class="form-group form-group--half">
+              <label for="dateRetour" class="form-label">Date et heure de retour pr&eacute;vue <span class="required">*</span></label>
+              <input type="datetime-local" id="dateRetour" name="dateRetour" class="form-input" required th:value="${submittedDateRetour}" th:classappend="${errors != null and errors.containsKey('dateRetour')} ? 'error'">
+              <span class="form-error" id="dateRetour-error" th:classappend="${errors != null and errors.containsKey('dateRetour')} ? 'visible'" th:text="${errors != null ? errors.get('dateRetour') : ''}"></span>
+            </div>
+          </div>
+          <div class="form-warning" id="duration-warning">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:text-bottom;margin-right:4px"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            Mission de longue dur&eacute;e, v&eacute;rifiez les dates.
+          </div>
+
+          <div class="form-group">
+            <label for="moyenTransport" class="form-label">Moyen de transport <span class="required">*</span></label>
+            <select id="moyenTransport" name="moyenTransport" class="form-select" required th:classappend="${errors != null and errors.containsKey('moyenTransport')} ? 'error'">
+              <option value="">S&eacute;lectionnez...</option>
+              <option value="vehicule_de_service" th:selected="${submittedMoyenTransport == 'vehicule_de_service'}">V&eacute;hicule de service</option>
+              <option value="vehicule_personnel" th:selected="${submittedMoyenTransport == 'vehicule_personnel'}">V&eacute;hicule personnel</option>
+            </select>
+            <span class="form-error" id="moyenTransport-error" th:classappend="${errors != null and errors.containsKey('moyenTransport')} ? 'visible'" th:text="${errors != null ? errors.get('moyenTransport') : ''}"></span>
+          </div>
+
+          <div class="form-group" id="vehicleId-group">
+            <label for="vehicleId" class="form-label">V&eacute;hicule souhait&eacute; (optionnel)</label>
+            <select id="vehicleId" name="vehicleId" class="form-select">
+              <option value="">Non sp&eacute;cifi&eacute;</option>
+              <option th:each="v : ${vehicles}" th:value="${v.id}" th:selected="${submittedVehicleId != null and submittedVehicleId.equals(v.id)}" th:text="${v.matricule} + ' — ' + ${v.modele} + ' (' + ${v.serviceRattache} + ')'">V&eacute;hicule</option>
+            </select>
+            <div class="form-hint">Ceci est une suggestion, l'attribution finale sera faite par votre chef.</div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-checkbox">
+              <input type="checkbox" id="combinee" name="combinee" value="true" th:checked="${combinee}" onchange="document.getElementById('participants-section').style.display = this.checked ? 'block' : 'none'">
+              Mission accompagn&eacute;e (plusieurs employ&eacute;s partagent le m&ecirc;me v&eacute;hicule)
+            </label>
+          </div>
+        </div>
+
+        <div class="card" id="participants-section" style="display:none">
+          <h2>Participants</h2>
+          <p class="subtitle">Ajoutez les employ&eacute;s participant &agrave; cette mission.</p>
+
+          <div class="form-group form-group--relative">
+            <label for="employeeSearch" class="form-label">Rechercher un employ&eacute;</label>
+            <input type="text" id="employeeSearch" class="search-input" placeholder="Rechercher par nom, pr&eacute;nom ou matricule..." autocomplete="off">
+            <div class="search-results" id="employeeSearchResults"></div>
+          </div>
+
+          <div class="participant-chips" id="participantChips"></div>
+          <div id="participantInputs"></div>
+          <span class="form-error" id="participants-error" th:classappend="${errors != null and errors.containsKey('participants')} ? 'visible'" th:text="${errors != null ? errors.get('participants') : ''}"></span>
+        </div>
+
+        <div class="card">
+          <h2>Circuit d'approbation</h2>
+          <div class="approval-chain">
+            <span class="approval-chain__step approval-chain__step--active">Vous</span>
+            <span class="approval-chain__arrow">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </span>
+            <span class="approval-chain__step">Chef Hi&eacute;rarchique</span>
+            <span class="approval-chain__arrow">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </span>
+            <span class="approval-chain__step">Directeur Provincial</span>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <a th:href="@{/employee/dashboard}" class="btn btn--outline">Annuler</a>
+          <button type="submit" class="btn btn--primary" id="submitBtn" disabled>Soumettre la demande</button>
+        </div>
+      </form>
+
+      <script th:inline="javascript">
+        var employees = [];
+        /*[# th:each="emp : ${employees}"]*/
+        employees.push({
+          id: /*[[${emp.id}]]*/ '',
+          nom: /*[[${emp.nom}]]*/ '',
+          prenom: /*[[${emp.prenom}]]*/ '',
+          matricule: /*[[${emp.matricule}]]*/ '',
+          fonction: /*[[${emp.fonction}]]*/ ''
+        });
+        /*[/]*/
+
+        var participantIds = [];
+
+        // ===== Validation state =====
+        var formErrors = {};
+        var touched = {};
+
+        // ===== Field validators =====
+        function validateField(name) {
+          var el = document.querySelector('[name="' + name + '"]');
+          var value = el ? el.value.trim() : '';
+
+          delete formErrors[name];
+
+          switch (name) {
+            case 'destination':
+              if (value.length > 0 && value.length < 3) {
+                formErrors.destination = "La destination doit contenir au moins 3 caract\u00e8res.";
+              } else if (value.length === 0) {
+                formErrors.destination = "La destination est requise.";
+              }
+              break;
+            case 'dateDepart': {
+              if (!value) {
+                formErrors.dateDepart = "La date de d\u00e9part est requise.";
+              } else {
+                var d = new Date(value);
+                var now = new Date();
+                now.setSeconds(0, 0);
+                now.setMilliseconds(0);
+                if (d.getTime() < now.getTime()) {
+                  formErrors.dateDepart = "La date de d\u00e9part ne peut pas \u00eatre dans le pass\u00e9.";
+                }
+              }
+              // Re-validate retour when depart changes
+              var retourEl = document.querySelector('[name="dateRetour"]');
+              if (retourEl && retourEl.value) validateField('dateRetour');
+              break;
+            }
+            case 'dateRetour': {
+              if (!value) {
+                formErrors.dateRetour = "La date de retour est requise.";
+              } else {
+                var departEl = document.querySelector('[name="dateDepart"]');
+                if (departEl && departEl.value) {
+                  var dDep = new Date(departEl.value);
+                  var dRet = new Date(value);
+                  if (dRet.getTime() <= dDep.getTime()) {
+                    formErrors.dateRetour = "La date de retour doit \u00eatre post\u00e9rieure \u00e0 la date de d\u00e9part.";
+                  }
+                }
+              }
+              break;
+            }
+            case 'moyenTransport':
+              if (!value) {
+                formErrors.moyenTransport = "Veuillez s\u00e9lectionner un moyen de transport.";
+              }
+              break;
+          }
+
+          showFieldError(name, formErrors[name] || null);
+          updateSubmitButton();
+          updateDurationWarning();
+        }
+
+        function validateObjet() {
+          var el = document.getElementById('objet');
+          var value = el.value;
+
+          delete formErrors['objet'];
+
+          if (value.length === 0) {
+            formErrors.objet = "L'objet de la mission est requis.";
+          } else if (value.length < 10) {
+            formErrors.objet = "Veuillez d\u00e9crire l'objet de la mission plus pr\u00e9cis\u00e9ment (10 caract\u00e8res minimum).";
+          }
+
+          showFieldError('objet', formErrors['objet'] || null);
+          updateSubmitButton();
+          updateCharCounter();
+        }
+
+        function markTouched(name) {
+          touched[name] = true;
+        }
+
+        function showFieldError(name, message) {
+          var errorEl = document.getElementById(name + '-error');
+          var inputEl = document.querySelector('[name="' + name + '"]');
+
+          // Only show/hide visual errors for touched fields (or on submit)
+          var show = touched[name] === true;
+
+          if (errorEl) {
+            if (message && show) {
+              errorEl.textContent = message;
+              errorEl.classList.add('visible');
+            } else {
+              errorEl.classList.remove('visible');
+            }
+          }
+
+          if (inputEl) {
+            if (message && show) {
+              inputEl.classList.add('error');
+            } else {
+              inputEl.classList.remove('error');
+            }
+          }
+        }
+
+        function updateSubmitButton() {
+          var btn = document.getElementById('submitBtn');
+          var hasClientErrors = Object.keys(formErrors).length > 0;
+          var hasServerErrors = document.querySelectorAll('.form-error.visible').length > 0;
+          btn.disabled = hasClientErrors || hasServerErrors;
+        }
+
+        function updateCharCounter() {
+          var el = document.getElementById('objet');
+          var counter = document.getElementById('objet-counter');
+          if (el && counter) {
+            var len = el.value.length;
+            counter.textContent = len + ' / 500';
+            if (len > 500) {
+              counter.style.color = 'var(--error)';
+            } else if (len > 450) {
+              counter.style.color = 'var(--warning)';
+            } else {
+              counter.style.color = '';
+            }
+          }
+        }
+
+        function updateDurationWarning() {
+          var departEl = document.querySelector('[name="dateDepart"]');
+          var retourEl = document.querySelector('[name="dateRetour"]');
+          var warningEl = document.getElementById('duration-warning');
+
+          if (!warningEl) return;
+
+          if (departEl && retourEl && departEl.value && retourEl.value) {
+            var dDep = new Date(departEl.value);
+            var dRet = new Date(retourEl.value);
+            if (dRet > dDep) {
+              var diffMs = dRet - dDep;
+              var diffDays = diffMs / (1000 * 60 * 60 * 24);
+              if (diffDays > 7) {
+                warningEl.classList.add('visible');
+                return;
+              }
+            }
+          }
+          warningEl.classList.remove('visible');
+        }
+
+        function validateForm() {
+          validateObjet();
+          validateField('destination');
+          validateField('dateDepart');
+          validateField('dateRetour');
+          validateField('moyenTransport');
+          return Object.keys(formErrors).length === 0;
+        }
+
+        // ===== Initialisation =====
+        document.addEventListener('DOMContentLoaded', function() {
+          // Mark touched on first interaction
+          document.getElementById('objet')?.addEventListener('input', function() { markTouched('objet'); validateObjet(); });
+          document.querySelector('[name="destination"]')?.addEventListener('input', function() { markTouched('destination'); validateField('destination'); });
+          document.querySelector('[name="dateDepart"]')?.addEventListener('change', function() { markTouched('dateDepart'); validateField('dateDepart'); });
+          document.querySelector('[name="dateRetour"]')?.addEventListener('change', function() { markTouched('dateRetour'); validateField('dateRetour'); });
+          document.querySelector('[name="moyenTransport"]')?.addEventListener('change', function() { markTouched('moyenTransport'); validateField('moyenTransport'); });
+
+          // Initial validation pass (keeps submit button disabled without showing red on untouched fields)
+          validateObjet();
+          validateField('destination');
+          validateField('dateDepart');
+          validateField('dateRetour');
+          validateField('moyenTransport');
+
+          // Hide/show vehicle suggestion depending on moyen de transport
+          function syncVehicleGroup() {
+            var moyen = document.querySelector('[name="moyenTransport"]');
+            var grp = document.getElementById('vehicleId-group');
+            if (moyen && grp) {
+              grp.style.display = (moyen.value === 'vehicule_de_service') ? '' : 'none';
+            }
+          }
+          document.querySelector('[name="moyenTransport"]')?.addEventListener('change', syncVehicleGroup);
+          syncVehicleGroup();
+
+          // Restore participants section when combinee is pre-checked
+          var cb = document.getElementById('combinee');
+          if (cb && cb.checked) {
+            document.getElementById('participants-section').style.display = 'block';
+          }
+        });
+
+        // ===== Form submit =====
+        document.getElementById('missionForm')?.addEventListener('submit', function(e) {
+          // Mark all fields touched so errors show on submit
+          touched = { objet: true, destination: true, dateDepart: true, dateRetour: true, moyenTransport: true };
+          if (!validateForm()) {
+            e.preventDefault();
+            // Re-run showFieldError for each field to update visuals with touched=true
+            showFieldError('objet', formErrors['objet'] || null);
+            showFieldError('destination', formErrors['destination'] || null);
+            showFieldError('dateDepart', formErrors['dateDepart'] || null);
+            showFieldError('dateRetour', formErrors['dateRetour'] || null);
+            showFieldError('moyenTransport', formErrors['moyenTransport'] || null);
+            var firstError = document.querySelector('.form-error.visible');
+            if (firstError) {
+              var input = document.querySelector('[name="' + firstError.id.replace('-error', '') + '"]');
+              if (input) input.focus();
+            }
+            return;
+          }
+          document.getElementById('submitBtn').disabled = true;
+          document.getElementById('submitBtn').classList.add('btn--loading');
+        });
+
+        // ===== Employee search (unchanged) =====
+        document.getElementById('employeeSearch')?.addEventListener('input', function() {
+          var q = this.value.toLowerCase();
+          var results = document.getElementById('employeeSearchResults');
+          if (q.length < 1) { results.classList.remove('open'); return; }
+          var filtered = employees.filter(function(e) {
+            return !participantIds.includes(e.id) && (e.nom.toLowerCase().includes(q) || e.prenom.toLowerCase().includes(q) || e.matricule.toLowerCase().includes(q));
+          });
+          if (filtered.length === 0) {
+            results.innerHTML = '<div class="search-result-item" style="color:var(--muted)">Aucun r\u00e9sultat</div>';
+          } else {
+            results.innerHTML = filtered.map(function(e) {
+              return '<div class="search-result-item" data-id="' + e.id + '" data-nom="' + e.nom + '" data-prenom="' + e.prenom + '" data-matricule="' + e.matricule + '" data-fonction="' + e.fonction + '">' +
+                '<div class="search-result-item__name">' + e.prenom + ' ' + e.nom + '</div>' +
+                '<div class="search-result-item__meta">' + e.matricule + ' &middot; ' + e.fonction + '</div>' +
+                '</div>';
+            }).join('');
+            results.querySelectorAll('.search-result-item').forEach(function(item) {
+              item.addEventListener('mousedown', function(e) {
+                e.preventDefault();
+                addParticipant(this.dataset.id, this.dataset.nom, this.dataset.prenom, this.dataset.matricule, this.dataset.fonction);
+                document.getElementById('employeeSearch').value = '';
+                results.classList.remove('open');
+              });
+            });
+          }
+          results.classList.add('open');
+        });
+
+        document.addEventListener('click', function(e) {
+          var el = document.getElementById('employeeSearchResults');
+          if (el && !e.target.closest('#employeeSearch') && !e.target.closest('.search-results')) {
+            el.classList.remove('open');
+          }
+        });
+
+        function addParticipant(id, nom, prenom, matricule, fonction) {
+          if (participantIds.includes(id)) return;
+          participantIds.push(id);
+          var chips = document.getElementById('participantChips');
+          var chip = document.createElement('span');
+          chip.className = 'participant-chip';
+          chip.dataset.id = id;
+          chip.innerHTML = prenom + ' ' + nom + ' (' + matricule + ')' +
+            ' <button type="button" class="participant-chip__remove" onclick="removeParticipant(\'' + id + '\')">&times;</button>';
+          chips.appendChild(chip);
+
+          var inputs = document.getElementById('participantInputs');
+          var input = document.createElement('input');
+          input.type = 'hidden';
+          input.name = 'participants';
+          input.value = id;
+          input.id = 'participant-' + id;
+          inputs.appendChild(input);
+        }
+
+        function removeParticipant(id) {
+          participantIds = participantIds.filter(function(p) { return p !== id; });
+          var chip = document.querySelector('.participant-chip[data-id="' + id + '"]');
+          if (chip) chip.remove();
+          var input = document.getElementById('participant-' + id);
+          if (input) input.remove();
+        }
+      </script>
+    </main>
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+  </div>
+</body>
+</html>

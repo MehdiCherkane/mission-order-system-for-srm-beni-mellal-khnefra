@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(title='Examen de mission')}"></head>
+<body>
+  <div class="page-wrapper">
+    <header th:replace="~{fragments/layout :: header(user=${user})}"></header>
+    <main class="page-main page-main--wide">
+      <div class="detail-page-container">
+
+        <div class="detail-topbar">
+          <a th:href="@{/chef/pending}" class="detail-back">&larr; Retour aux approbations</a>
+        </div>
+
+        <div class="card card--detail">
+          <div class="detail-header-row">
+            <div>
+              <h1 th:text="${mission.objet}">Objet</h1>
+              <div class="detail-meta-row">
+                <span th:text="${mission.destination}">Destination</span>
+                <span class="detail-meta-sep">&middot;</span>
+                <span class="date-time">
+                  <span class="date-time__date" th:text="${#temporals.format(mission.dateDepart, 'dd/MM/yyyy')}">Date</span>
+                  <span class="date-time__time" th:text="${#temporals.format(mission.dateDepart, 'HH:mm')}">Heure</span>
+                </span>
+                <span class="detail-meta-sep">&ndash;</span>
+                <span class="date-time">
+                  <span class="date-time__date" th:text="${#temporals.format(mission.dateRetour, 'dd/MM/yyyy')}">Date</span>
+                  <span class="date-time__time" th:text="${#temporals.format(mission.dateRetour, 'HH:mm')}">Heure</span>
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div class="detail-grid metadata-grid">
+            <div class="detail-field mini-card">
+              <span class="detail-field__label">Demandeur</span>
+              <span class="detail-field__value" th:text="${mission.requesterPrenom} + ' ' + ${mission.requesterNom}">Nom</span>
+            </div>
+            <div class="detail-field mini-card">
+              <span class="detail-field__label">Matricule</span>
+              <span class="detail-field__value" th:text="${mission.requesterMatricule}">Matricule</span>
+            </div>
+            <div class="detail-field mini-card">
+              <span class="detail-field__label">Fonction</span>
+              <span class="detail-field__value" th:text="${mission.requesterFonction}">Fonction</span>
+            </div>
+            <div class="detail-field mini-card">
+              <span class="detail-field__label">Service</span>
+              <span class="detail-field__value" th:text="${mission.requesterService}">Service</span>
+            </div>
+            <div class="detail-field mini-card">
+              <span class="detail-field__label">Direction</span>
+              <span class="detail-field__value" th:text="${mission.requesterDirection}">Direction</span>
+            </div>
+            <div class="detail-field mini-card">
+              <span class="detail-field__label">Moyen de transport</span>
+              <span class="detail-field__value" th:text="${mission.moyenTransport == 'vehicule_de_service'} ? 'V&eacute;hicule de service' : 'V&eacute;hicule personnel'">Transport</span>
+            </div>
+            <div class="detail-field mini-card" th:classappend="${!mission.combine} ? 'span-2' : ''">
+              <span class="detail-field__label">V&eacute;hicule souhait&eacute;</span>
+              <span class="detail-field__value" th:text="${mission.vehicleInfo} ?: 'Non sp&eacute;cifi&eacute;'">V&eacute;hicule</span>
+            </div>
+            <div class="detail-field mini-card" th:if="${mission.combine}">
+              <span class="detail-field__label">Mission accompagn&eacute;e</span>
+              <span class="detail-field__value">Oui</span>
+            </div>
+          </div>
+
+          <div class="detail-objet-box">
+            <span class="detail-field__label detail-field__label--block">Objet d&eacute;taill&eacute;</span>
+            <div class="detail-objet-content" th:text="${mission.objet}">Objet</div>
+          </div>
+
+          <div th:if="${mission.combine && !#lists.isEmpty(mission.participants)}" class="card--section">
+            <span class="detail-field__label detail-field__label--block">Participants</span>
+            <div class="participant-chips">
+              <span class="participant-chip" th:each="p : ${mission.participants}" th:text="${p.prenom} + ' ' + ${p.nom} + ' (' + ${p.matricule} + ')'">Participant</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Already processed view -->
+        <div th:if="${alreadyProcessed}" class="decision-card">
+          <h2>D&eacute;cision</h2>
+          <div class="card--section">
+            <div th:each="step : ${mission.approvalSteps}" th:if="${step.ordre == 1}" class="approval-card">
+              <div class="approval-card__name" th:text="${step.approverNom}">Chef</div>
+              <div class="approval-card__status">
+                <span th:if="${step.statut == 'approuve'}" class="text-success">Approuv&eacute;e</span>
+                <span th:if="${step.statut == 'rejete'}" class="text-error">Rejet&eacute;e</span>
+                <span th:if="${step.dateAction}" th:text="' — ' + ${#temporals.format(step.dateAction, 'dd/MM/yyyy HH:mm')}"></span>
+              </div>
+              <div th:if="${step.commentaire != null && !step.commentaire.isEmpty()}" class="approval-card__comment" th:text="'Commentaire : ' + ${step.commentaire}">Commentaire</div>
+            </div>
+          </div>
+          <div class="detail-actions detail-actions--right">
+            <a th:href="@{/chef/pending}" class="btn btn--outline">Retour aux approbations</a>
+          </div>
+        </div>
+
+        <!-- Active decision form -->
+        <form th:unless="${alreadyProcessed}" method="post" th:action="@{/chef/approval/{id}(id=${mission.id})}" class="decision-card" id="approvalForm">
+          <h2>D&eacute;cision</h2>
+
+          <div th:if="${rejectionError != null}" class="alert alert--error" th:text="${rejectionError}">Erreur</div>
+
+          <div class="form-group" th:if="${mission.moyenTransport == 'vehicule_de_service'}">
+            <label for="vehicleId" class="form-label">Assigner un v&eacute;hicule</label>
+            <select id="vehicleId" name="vehicleId" class="form-select">
+              <option value="">S&eacute;lectionnez un v&eacute;hicule...</option>
+              <option th:each="v : ${vehicles}" th:value="${v.id}" th:selected="${mission.vehicleId != null && mission.vehicleId.equals(v.id)}" th:text="${v.matricule} + ' — ' + ${v.modele} + ' (' + ${v.serviceRattache} + ')'">V&eacute;hicule</option>
+            </select>
+            <div class="form-hint">Assignez un v&eacute;hicule de service si la mission le n&eacute;cessite.</div>
+          </div>
+          <div class="form-group" th:if="${mission.moyenTransport == 'vehicule_personnel'}">
+            <div class="form-hint">Le demandeur utilise son v&eacute;hicule personnel — aucune assignation requise.</div>
+            <input type="hidden" name="vehicleId" value="">
+          </div>
+
+          <input type="hidden" name="action" id="actionInput" value="">
+          <input type="hidden" name="commentaire" id="commentaire" value="">
+
+          <div class="decision-actions">
+            <button type="button" class="btn btn--success" onclick="openModal('approuve')">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              Approuver
+            </button>
+            <button type="button" class="btn btn--danger" onclick="openModal('rejete')">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              Rejeter
+            </button>
+          </div>
+        </form>
+
+        <div th:unless="${alreadyProcessed}" class="modal-overlay" id="confirmModal">
+          <div class="modal">
+            <div class="modal__icon" id="modalIcon"></div>
+            <h3 class="modal__title" id="modalTitle"></h3>
+            <div class="modal__body" id="modalBody"></div>
+            <div class="modal__actions">
+              <button type="button" class="btn btn--outline" onclick="closeModal()">Annuler</button>
+              <button type="button" class="btn" id="modalConfirmBtn" onclick="confirmAction()"></button>
+            </div>
+          </div>
+        </div>
+
+        <script th:inline="javascript" th:if="${!alreadyProcessed}">
+          var modalPendingAction = null;
+          var requesterName = [[${mission.requesterPrenom} + ' ' + ${mission.requesterNom}]];
+
+          function openModal(action) {
+            modalPendingAction = action;
+            var modal = document.getElementById('confirmModal');
+            var icon = document.getElementById('modalIcon');
+            var title = document.getElementById('modalTitle');
+            var body = document.getElementById('modalBody');
+            var btn = document.getElementById('modalConfirmBtn');
+
+if (action === 'approuve') {
+              icon.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>';
+              icon.className = 'modal__icon modal__icon--success';
+              title.textContent = "Confirmer l'approbation";
+              var escaped = requesterName.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+              body.innerHTML = '<p>Vous allez approuver la mission de <strong>' + escaped + '</strong>.</p>';
+              btn.className = 'btn btn--success';
+              btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Approuver';
+            } else {
+              icon.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>';
+              icon.className = 'modal__icon modal__icon--danger';
+              title.textContent = 'Motif du rejet';
+              body.innerHTML = '<div class="form-group"><label for="modalCommentaire" class="form-label">Veuillez expliquer le motif du rejet <span class="required">*</span></label><textarea id="modalCommentaire" class="form-textarea" placeholder="Expliquez le motif du rejet..." required></textarea><span class="form-error" id="modalCommentaireError"></span></div>';
+              btn.className = 'btn btn--danger';
+              btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> Confirmer le rejet';
+            }
+
+            modal.classList.add('open');
+          }
+
+          function closeModal() {
+            document.getElementById('confirmModal').classList.remove('open');
+            modalPendingAction = null;
+          }
+
+          function confirmAction() {
+            if (modalPendingAction === 'rejete') {
+              var comment = document.getElementById('modalCommentaire').value.trim();
+              var errorEl = document.getElementById('modalCommentaireError');
+              if (!comment) {
+                errorEl.textContent = 'Le motif du rejet est requis.';
+                errorEl.classList.add('visible');
+                document.getElementById('modalCommentaire').classList.add('error');
+                document.getElementById('modalCommentaire').focus();
+                return;
+              }
+              errorEl.classList.remove('visible');
+              document.getElementById('modalCommentaire').classList.remove('error');
+              document.getElementById('commentaire').value = comment;
+            }
+            document.getElementById('actionInput').value = modalPendingAction;
+            closeModal();
+            document.getElementById('approvalForm').submit();
+          }
+
+          document.addEventListener('click', function(e) {
+            var modal = document.getElementById('confirmModal');
+            if (e.target === modal) closeModal();
+          });
+
+          document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') closeModal();
+          });
+
+          document.getElementById('modalBody')?.addEventListener('input', function(e) {
+            if (e.target && e.target.id === 'modalCommentaire') {
+              var errorEl = document.getElementById('modalCommentaireError');
+              if (errorEl.classList.contains('visible') && e.target.value.trim()) {
+                errorEl.classList.remove('visible');
+                e.target.classList.remove('error');
+              }
+            }
+          });
+
+          document.getElementById('approvalForm')?.addEventListener('submit', function() {
+            var btns = this.querySelectorAll('.btn--success, .btn--danger');
+            btns.forEach(function(b) { b.disabled = true; });
+          });
+        </script>
+      </div>
+    </main>
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+  </div>
+</body>
+</html>
