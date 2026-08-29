@@ -4,16 +4,28 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Connexion — SRM Ordres de Mission</title>
-  <link rel="stylesheet" th:href="@{/css/style.css}">
+  <link rel="stylesheet" th:href="@{/css/style.css?v=3}">
 </head>
 <body>
   <div class="auth-layout">
-    <div class="auth-card">
-      <div class="auth-card__logo">
+    <aside class="auth-brand" aria-label="SRM Beni Mellal-Kh&eacute;nifra">
+      <div class="auth-brand__pattern" aria-hidden="true"></div>
+      <div class="auth-brand__content">
         <img th:src="@{/logo.png}" alt="SRM" class="auth-card__logo-img">
+        <div class="auth-brand__eyebrow">Royaume du Maroc</div>
+        <h1 class="auth-brand__title">SRM Beni Mellal-Kh&eacute;nifra</h1>
+        <p class="auth-brand__subtitle">Syst&egrave;me Int&eacute;gr&eacute; de Gestion des Ordres de Mission</p>
       </div>
-      <h1 class="auth-card__title">Ordres de Mission</h1>
-      <p class="auth-card__subtitle">SRM Beni Mellal-Kh&eacute;nifra</p>
+      <p class="auth-brand__footer">Une gestion claire, coordonn&eacute;e et tra&ccedil;able des d&eacute;placements professionnels.</p>
+    </aside>
+
+    <main class="auth-content">
+      <div class="auth-card">
+        <div class="auth-card__intro">
+          <span class="auth-card__eyebrow">Espace s&eacute;curis&eacute;</span>
+          <h2 class="auth-card__title">Bienvenue</h2>
+          <p class="auth-card__subtitle">Connectez-vous pour acc&eacute;der &agrave; votre espace de travail.</p>
+        </div>
 
       <div th:if="${param.error != null}" class="alert alert--error">
         Matricule ou mot de passe incorrect.
@@ -35,7 +47,7 @@
           <label for="motDePasse" class="form-label">Mot de passe</label>
           <div class="password-field">
             <input type="password" id="motDePasse" name="motDePasse" class="form-input" required placeholder="Votre mot de passe">
-            <button type="button" class="password-toggle" id="pwToggle" tabindex="-1" aria-label="Afficher le mot de passe">
+            <button type="button" class="password-toggle" id="pwToggle" aria-label="Afficher le mot de passe" aria-pressed="false">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
             </button>
           </div>
@@ -48,7 +60,8 @@
         <a href="#">Mot de passe oubli&eacute; ?</a><br>
         <small>Comptes provisionn&eacute;s par l'administration SRM</small>
       </div>
-    </div>
+      </div>
+    </main>
   </div>
 
   <script>
@@ -63,6 +76,8 @@
       toggle.addEventListener('click', function() {
         var isPw = input.type === 'password';
         input.type = isPw ? 'text' : 'password';
+        this.setAttribute('aria-pressed', String(isPw));
+        this.setAttribute('aria-label', isPw ? 'Masquer le mot de passe' : 'Afficher le mot de passe');
         this.innerHTML = isPw
           ? '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>'
           : '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';

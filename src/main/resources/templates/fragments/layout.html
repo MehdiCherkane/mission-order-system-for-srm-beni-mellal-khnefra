@@ -4,13 +4,17 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title th:text="${title} + ' — SRM Ordres de Mission'">SRM</title>
-  <link rel="stylesheet" th:href="@{/css/style.css?v=2}">
+  <link rel="stylesheet" th:href="@{/css/style.css?v=3}">
 </head>
 <body>
   <header class="page-header" th:fragment="header(user)">
-    <a th:href="@{/}" class="page-header__logo">
+    <a th:href="@{/}" class="page-header__brand" aria-label="Accueil SRM Beni Mellal-Kh&eacute;nifra">
       <img th:src="@{/logo.png}" alt="SRM" class="page-header__logo-img">
-      <span>SRM Missions</span>
+      <span class="page-header__brand-separator" aria-hidden="true"></span>
+      <span class="page-header__brand-copy">
+        <span class="page-header__brand-title">SRM Beni Mellal-Kh&eacute;nifra</span>
+        <span class="page-header__brand-subtitle">Ordres de Mission</span>
+      </span>
     </a>
     <button class="nav-toggle" id="navToggle" aria-label="Menu" onclick="document.getElementById('mainNav').classList.toggle('open')">
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
@@ -18,20 +22,32 @@
     <nav class="page-header__nav" id="mainNav">
       <th:block th:if="${user != null}">
         <th:block th:switch="${user.role}">
-          <a th:case="'EMPLOYEE'" th:href="@{/employee/dashboard}" class="btn btn--outline btn--sm">Tableau de bord</a>
-          <a th:case="'CHEF_HIERARCHIQUE'" th:href="@{/chef/pending}" class="btn btn--outline btn--sm">Approbations</a>
-          <a th:case="'DIRECTEUR'" th:href="@{/directeur/pending}" class="btn btn--outline btn--sm">Approbations</a>
-          <a th:case="'ADMIN'" th:href="@{/admin/dashboard}" class="btn btn--outline btn--sm">Admin</a>
-          <a th:case="*" th:href="@{/employee/dashboard}" class="btn btn--outline btn--sm">Tableau de bord</a>
+          <a th:case="'EMPLOYEE'" th:href="@{/employee/dashboard}" class="nav-link">Tableau de bord</a>
+          <a th:case="'CHEF_HIERARCHIQUE'" th:href="@{/chef/pending}" class="nav-link">Approbations</a>
+          <a th:case="'DIRECTEUR'" th:href="@{/directeur/pending}" class="nav-link">Approbations</a>
+          <a th:case="'ADMIN'" th:href="@{/admin/dashboard}" class="nav-link">Vue d'ensemble</a>
+          <a th:case="*" th:href="@{/employee/dashboard}" class="nav-link">Tableau de bord</a>
        </th:block>
-        <a th:if="${user.role == 'ADMIN'}" th:href="@{/admin/employees}" class="btn btn--outline btn--sm">Employ&eacute;s</a>
-        <a th:if="${user.role == 'ADMIN'}" th:href="@{/admin/missions}" class="btn btn--outline btn--sm">Missions</a>
-        <a th:if="${user.role == 'ADMIN'}" th:href="@{/admin/vehicles}" class="btn btn--outline btn--sm">V&eacute;hicules</a>
-        <a th:if="${user.role == 'ADMIN'}" th:href="@{/admin/settings}" class="btn btn--outline btn--sm">Param&egrave;tres</a>
-        <a th:href="@{/employee/profile}" class="btn btn--outline btn--sm">Profil</a>
-        <form th:action="@{/logout}" method="post" style="display:inline">
-          <button type="submit" class="btn btn--outline btn--sm">D&eacute;connexion</button>
-       </form>
+        <a th:if="${user.role == 'ADMIN'}" th:href="@{/admin/employees}" class="nav-link">Employ&eacute;s</a>
+        <a th:if="${user.role == 'ADMIN'}" th:href="@{/admin/missions}" class="nav-link">Missions</a>
+        <a th:if="${user.role == 'ADMIN'}" th:href="@{/admin/vehicles}" class="nav-link">V&eacute;hicules</a>
+        <a th:if="${user.role == 'ADMIN'}" th:href="@{/admin/settings}" class="nav-link">Param&egrave;tres</a>
+        <details class="profile-menu">
+          <summary class="profile-menu__trigger">
+            <span class="profile-menu__avatar" th:text="${#strings.toUpperCase(#strings.substring(user.prenom, 0, 1) + #strings.substring(user.nom, 0, 1))}">SR</span>
+            <span class="profile-menu__identity">
+              <span class="profile-menu__name" th:text="${user.prenom + ' ' + user.nom}">Utilisateur SRM</span>
+              <span class="profile-menu__role" th:text="${user.role == 'ADMIN'} ? 'Administration' : (${user.role == 'DIRECTEUR'} ? 'Direction provinciale' : (${user.role == 'CHEF_HIERARCHIQUE'} ? 'Chef hi&eacute;rarchique' : 'Employ&eacute;'))">Employ&eacute;</span>
+            </span>
+            <svg class="profile-menu__chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+          </summary>
+          <div class="profile-menu__panel">
+            <a th:href="@{/employee/profile}" class="profile-menu__item">Mon profil</a>
+            <form th:action="@{/logout}" method="post">
+              <button type="submit" class="profile-menu__item profile-menu__item--logout">D&eacute;connexion</button>
+            </form>
+          </div>
+        </details>
      </th:block>
     </nav>
     <script>
@@ -41,6 +57,13 @@
         if (nav && toggle && !nav.contains(e.target) && !toggle.contains(e.target)) {
           nav.classList.remove('open');
         }
+      });
+      document.addEventListener('DOMContentLoaded', function() {
+        var currentPath = window.location.pathname;
+        document.querySelectorAll('.nav-link').forEach(function(link) {
+          var targetPath = new URL(link.href, window.location.origin).pathname;
+          if (targetPath === currentPath) link.classList.add('is-active');
+        });
       });
     </script>
   </header>
