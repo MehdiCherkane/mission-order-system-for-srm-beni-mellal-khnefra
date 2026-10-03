@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="'Ordre de Mission N° ' + ${mission.id}">Ordre de Mission - SRM Béni Mellal - Khénifra</title>
+    <title th:text="'Ordre de Mission N° ' + ${mission.missionNumber}">Ordre de Mission - SRM Béni Mellal - Khénifra</title>
     <style>
         @page {
             size: A4 portrait;
-            margin: 10mm;
+            margin: 12mm 13mm 13mm 13mm;
         }
 
         * {
@@ -17,247 +17,230 @@
         }
 
         body {
-            font-family: 'Times New Roman', Times, serif, 'Arial', sans-serif;
-            color: #000;
-            background-color: #f5f5f5;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            padding: 20px;
-            flex-direction: column;
+            font-family: Georgia, 'Times New Roman', Times, serif;
+            font-size: 12.5px;
+            color: #111;
+            background: #e8e8e8;
+            padding: 24px 12px 40px;
         }
 
-        .page {
-            width: 210mm;
-            min-height: 297mm;
+        /* ---- Sheet (screen: centered A4-like page / print: full page) ---- */
+        .sheet {
             background: #fff;
-            padding: 12mm 15mm;
-            position: relative;
-            box-shadow: 0 0 10px rgba(0,0,0,0.15);
+            max-width: 184mm;
+            margin: 0 auto;
+            padding: 9mm 10mm 8mm;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.18);
+            /* Full A4 proportions (184 x 260 ≈ 1:√2); footer pinned to the bottom */
+            min-height: 260mm;
             display: flex;
             flex-direction: column;
-            justify-content: space-between;
         }
 
-        .frame-border {
-            border: 1px dashed #555;
-            padding: 20px 25px;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            position: relative;
+        /* ---- Letterhead ---- */
+        .masthead {
+            display: grid;
+            grid-template-columns: auto minmax(0, 1fr);
+            column-gap: 14px;
+            align-items: start;
+            border-bottom: 2.5px solid #1b365d;
+            padding-bottom: 10px;
         }
 
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 50px;
+        .logo {
+            height: 58px;
+            width: auto;
+            max-width: 160px;
+            display: block;
         }
 
-        .header-logo {
-            width: 120px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .logo-img {
-            width: 100px;
-            height: auto;
-        }
-
-        .header-text {
+        .identity {
             text-align: right;
-            flex-grow: 1;
+            min-width: 0;
         }
 
-        .ar-title {
-            font-size: 17px;
-            font-weight: bold;
+        .ar-name {
+            font-family: 'Traditional Arabic', 'Sakkal Majalla', 'Simplified Arabic', 'Amiri', 'Segoe UI', serif;
+            font-size: 15px;
+            font-weight: 700;
             color: #1b365d;
-            direction: rtl;
-            font-family: 'Traditional Arabic', 'Amiri', serif;
+            line-height: 1.6;
         }
 
-        .tifinagh-title {
-            font-size: 12px;
+        .tifinagh {
+            font-family: 'Ebrima', 'Noto Sans Tifinagh', 'DejaVu Sans', sans-serif;
+            font-size: 13px;
             color: #2b547e;
-            margin: 2px 0;
-            font-family: sans-serif;
-        }
-
-        .fr-title {
-            font-size: 14px;
-            font-weight: bold;
-            color: #1b365d;
             margin-top: 2px;
         }
 
-        .ref-line {
-            display: flex;
-            justify-content: space-between;
-            font-size: 15px;
-            font-weight: bold;
-            margin-top: 15px;
-            margin-bottom: 40px;
+        .fr-name {
+            text-align: right;
+            font-size: 13px;
+            font-weight: 700;
+            color: #1b365d;
+            margin-top: 5px;
+            letter-spacing: 0.2px;
         }
 
+        /* Codes (matricule, plates, references): even caps/digits rendering */
+        .code {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            font-size: 0.95em;
+            letter-spacing: 0.4px;
+            font-variant-numeric: tabular-nums lining-nums;
+            white-space: nowrap;
+        }
+        /* ---- Reference row: FR left, AR right, equal weight ---- */
+        .ref-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            gap: 12px;
+            font-size: 12px;
+            font-weight: 700;
+            margin-top: 14px;
+        }
+
+        /* ---- Document title ---- */
         .doc-title {
             text-align: center;
-            font-size: 20px;
-            font-weight: bold;
+            font-size: 22px;
+            font-weight: 700;
+            letter-spacing: 0.4px;
             text-decoration: underline;
-            margin-bottom: 50px;
-            letter-spacing: 0.5px;
+            text-underline-offset: 4px;
+            text-decoration-thickness: 1.5px;
+            margin: 22px 0 24px;
         }
 
-        .form-section {
-            font-size: 16px;
+        /* ---- Body ---- */
+        .auth {
+            font-size: 12.5px;
             line-height: 2.2;
+            margin-bottom: 6px;
         }
 
-        .dots-field {
-            display: inline-block;
-            min-width: 180px;
-            font-weight: 600;
-            font-family: 'Arial', sans-serif;
+        /* Gap between the (fixed) title and the body */
+        .doc-title + .auth {
+            margin-top: 15mm;
         }
 
-        .dots-field-short {
-            display: inline-block;
-            min-width: 120px;
-            font-weight: 600;
-            font-family: 'Arial', sans-serif;
+        .meta {
+            margin-top: 28px;
+            display: grid;
+            row-gap: 22px;
         }
 
-        .dots-field-long {
-            display: inline-block;
-            min-width: 260px;
-            font-weight: 600;
-            font-family: 'Arial', sans-serif;
+        .meta-row {
+            display: grid;
+            grid-template-columns: 200px 14px minmax(0, 1fr);
+            align-items: start;
+            font-size: 13px;
+            line-height: 1.65;
         }
 
-        .details-list {
-            margin-top: 35px;
-            margin-left: 20px;
-            list-style: none;
+        .meta-row dt {
+            font-weight: 700;
         }
 
-        .details-list li {
-            margin-bottom: 22px;
-            font-size: 16px;
-            display: flex;
-            align-items: baseline;
+        .meta-row .colon {
+            font-weight: 700;
         }
 
-        .details-list li .bullet {
-            margin-right: 12px;
-            font-size: 14px;
+        .meta-row dd {
+            min-width: 0;
+            overflow-wrap: anywhere;
         }
 
-        .details-list li .label {
-            font-weight: bold;
-            width: 230px;
+        .part-list div {
+            line-height: 1.6;
+        }
+
+        /* ---- Visas: two columns, blank space for signature/stamp ---- */
+        .visas {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 28px;
+            margin-top: 22mm;
+            margin-bottom: 8mm;
+        }
+
+        .visa {
+            text-align: center;
+            min-width: 0;
+        }
+
+        .visa-title {
+            font-size: 12.5px;
+            font-weight: 700;
+        }
+
+        .visa-name {
+            font-size: 12px;
+            margin-top: 5px;
+        }
+
+        .visa-space {
+            min-height: 44mm;
+        }
+
+        /* ---- Footer (pinned to sheet bottom via margin-top:auto) ---- */
+        .footer {
+            margin-top: auto;
+            border-top: 1.5px solid #1b365d;
+            padding-top: 6px;
+        }
+
+        .foot-cols {
             display: flex;
             justify-content: space-between;
-            padding-right: 15px;
+            gap: 18px;
         }
 
-        .details-list li .value {
-            flex-grow: 1;
-            font-weight: 600;
-            font-family: 'Arial', sans-serif;
-        }
-
-        .participants-info {
-            margin-top: 20px;
-            margin-left: 20px;
-            font-size: 15px;
-        }
-        .participants-info strong {
-            font-size: 16px;
-        }
-        .participants-info .part-list {
-            margin-top: 4px;
-            margin-left: 28px;
-            font-weight: 600;
-            font-family: 'Arial', sans-serif;
-        }
-
-        .signature-section {
-            margin-top: 80px;
-            text-align: right;
-            padding-right: 40px;
-            margin-bottom: 10px;
-        }
-
-        .signature-title {
-            font-size: 18px;
-            font-weight: bold;
-        }
-
-        .signature-approval {
-            text-align: right;
-            padding-right: 40px;
-            font-size: 12px;
-            color: #059669;
-            font-style: italic;
-            margin-bottom: 80px;
-        }
-
-        .footer-container {
-            margin-top: auto;
-            position: relative;
-        }
-
-        .footer-content {
-            border-top: 1.5px solid #2b547e;
-            padding-top: 8px;
+        .foot-fr,
+        .foot-ar {
             font-size: 10px;
+            line-height: 1.55;
+            color: #1b365d;
+            min-width: 0;
+        }
+
+        .foot-fr strong,
+        .foot-ar strong {
+            font-size: 10.5px;
+        }
+
+        .foot-fr .addr,
+        .foot-ar .addr {
+            font-weight: 400;
+            color: #555;
+        }
+
+        .foot-ar {
+            text-align: right;
+        }
+
+        .foot-ar .ar {
+            font-family: 'Traditional Arabic', 'Sakkal Majalla', 'Simplified Arabic', 'Amiri', 'Segoe UI', serif;
+        }
+
+        .legal {
+            margin-top: 6px;
+            padding-top: 5px;
+            border-top: 1px solid #ddd;
+            font-size: 9.5px;
             color: #333;
             text-align: center;
-            line-height: 1.5;
+            line-height: 1.8;
         }
 
-        .footer-top-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 4px;
+        .legal span {
+            white-space: nowrap;
+            margin: 0 5px;
         }
 
-        .footer-left {
-            text-align: left;
-            font-weight: bold;
-            color: #1b365d;
-        }
-
-        .footer-right {
-            text-align: right;
-            font-weight: bold;
-            color: #1b365d;
-            direction: rtl;
-        }
-
-        .footer-center-icon {
-            font-size: 14px;
-        }
-
-        .footer-bottom-row {
-            font-size: 9px;
-            color: #444;
-            border-top: 1px solid #eee;
-            padding-top: 4px;
-            margin-top: 4px;
-            display: flex;
-            justify-content: center;
-            gap: 12px;
-            flex-wrap: wrap;
-        }
-
+        /* ---- Screen-only controls (never printed) ---- */
         .no-print {
             text-align: center;
             margin-top: 20px;
@@ -292,143 +275,115 @@
 
         @media print {
             body {
-                background: none;
+                background: #fff;
                 padding: 0;
             }
-            .page {
+            .sheet {
+                max-width: none;
+                margin: 0;
+                padding: 0;
                 box-shadow: none;
-                width: 100%;
-                height: 100vh;
-                padding: 0;
-            }
-            .frame-border {
-                height: 98vh;
+                /* Fill the printable A4 area (297 - 12 - 13 = 272mm);
+                   kept slightly under to avoid rounding spill to a 2nd page */
+                min-height: 265mm;
             }
             .no-print {
                 display: none !important;
             }
-            @page {
-                margin: 8mm;
+            * {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
             }
         }
     </style>
 </head>
 <body>
 
-<div class="page">
-    <div class="frame-border">
-        <div>
-            <!-- Header Section -->
-            <div class="header">
-                <div class="header-logo">
-                    <img th:src="@{/logo.png}" alt="SRM" class="logo-img">
-                </div>
-                <div class="header-text">
-                    <div class="ar-title">الشركة الجهوية متعددة الخدمات بني ملال – خنيفرة ش.م</div>
-                    <div class="tifinagh-title">ⵜⵓⵛⵓⵠⵓⵜ ⵜⵓⵍⵞⵍⵓⴹⵜ ⵞⵓⵅⵜ ⵞⵗⵞⵓ ⵞⵓⵚ ⵞⵧⵓⵞ ⵞⵧⵚⵓⵓ ⵞ.ⵞ</div>
-                    <div class="fr-title">Société Régionale Multiservices Béni Mellal - Khénifra S.A</div>
-                </div>
-            </div>
-
-            <!-- Reference Line -->
-            <div class="ref-line">
-                <span>Référence : <span class="dots-field-short" th:text="${mission.missionNumber}">REF</span></span>
-                <span>المرجع : <span class="dots-field-short" th:text="${mission.missionNumber}">REF</span></span>
-            </div>
-
-            <!-- Title -->
-            <div class="doc-title">
-                ORDRE DE MISSION N° <span th:text="${mission.missionNumber}">...</span> /2026
-            </div>
-
-            <!-- Form Content -->
-            <div class="form-section">
-                <p style="margin-bottom: 15px;">
-                    <strong>Monsieur</strong> <span class="dots-field" th:text="${mission.requesterPrenom} + ' ' + ${mission.requesterNom}">Nom</span> 
-                    <strong>; Mle :</strong> <span class="dots-field-short" th:text="${mission.requesterMatricule}">Matricule</span> 
-                    <strong>, est autorisé à se déplacer</strong>
-                </p>
-                <p>
-                    <strong>pour les besoins de service</strong>
-                    <th:block th:if="${mission.vehicle != null}">
-                        <strong>à bord du véhicule immatriculé :</strong> <span class="dots-field-long" th:text="${mission.vehicleInfo}">Véhicule</span>
-                    </th:block>
-                    <th:block th:if="${mission.vehicle == null}">
-                        <strong><th:block th:if="${mission.moyenTransport == 'vehicule_personnel'}">avec son véhicule personnel</th:block><th:block th:if="${mission.moyenTransport != 'vehicule_personnel'}">à bord d'un véhicule de service</th:block></strong>
-                    </th:block>
-                </p>
-
-                <ul class="details-list">
-                    <li>
-                        <span class="bullet">❖</span>
-                        <span class="label"><span>Destination</span><span>:</span></span>
-                        <span class="value" th:text="${mission.destination}">Destination</span>
-                    </li>
-                    <li>
-                        <span class="bullet">❖</span>
-                        <span class="label"><span>Motif</span><span>:</span></span>
-                        <span class="value" th:text="${mission.objet}">Motif</span>
-                    </li>
-                    <li>
-                        <span class="bullet">❖</span>
-                        <span class="label"><span>Date et l'heure de départ</span><span>:</span></span>
-                        <span class="value" th:text="${#temporals.format(mission.dateDepart, 'dd/MM/yyyy HH:mm')}">Départ</span>
-                    </li>
-                    <li>
-                        <span class="bullet">❖</span>
-                        <span class="label"><span>Date et l'heure de retour</span><span>:</span></span>
-                        <span class="value" th:text="${#temporals.format(mission.dateRetour, 'dd/MM/yyyy HH:mm')}">Retour</span>
-                    </li>
-                </ul>
-
-                <div class="participants-info" th:if="${mission.combine && !#lists.isEmpty(mission.participants)}">
-                    <strong>Participants accompagnateurs :</strong>
-                    <div class="part-list" th:each="p : ${mission.participants}" th:text="${p.prenom} + ' ' + ${p.nom} + ' (' + ${p.fonction} + ')'">
-                        Participant
-                    </div>
-                </div>
-            </div>
-
-            <!-- Signature Section -->
-            <div class="signature-section">
-                <div class="signature-title">Directeur Provincial</div>
-            </div>
-            <div class="signature-approval" th:each="step : ${mission.approvalSteps}" th:if="${step.ordre == 2 && step.statut == 'approuve'}">
-                Approuvé par <span th:text="${step.approverNom}">Nadia El Amrani</span>
-                le <span th:text="${#temporals.format(step.dateAction, 'dd/MM/yyyy')}">date</span>
-            </div>
+<div class="sheet">
+    <!-- Institutional letterhead: logo left, trilingual identity right-aligned -->
+    <header class="masthead">
+        <img class="logo" th:src="@{/logo.png}" alt="SRM Béni Mellal - Khénifra">
+        <div class="identity" lang="ar" dir="rtl">
+            <!-- Official Arabic company name (kept byte-identical from previous version) -->
+            <div class="ar-name">الشركة الجهوية متعددة الخدمات بني ملال – خنيفرة ش.م</div>
+            <!-- Official Tifinagh line (kept byte-identical; confirm wording against official letterhead) -->
+            <div class="tifinagh" lang="zgh">ⵜⵓⵛⵓⵠⵓⵜ ⵜⵓⵍⵞⵍⵓⴹⵜ ⵞⵓⵅⵜ ⵞⵗⵞⵓ ⵞⵓⵚ ⵞⵧⵓⵞ ⵞⵧⵚⵓⵓ ⵞ.ⵞ</div>
+            <div class="fr-name" lang="fr" dir="ltr">Société Régionale Multiservices Béni Mellal - Khénifra S.A</div>
         </div>
+    </header>
 
-        <!-- Footer Section -->
-        <div class="footer-container">
-            <div class="footer-content">
-                <div class="footer-top-row">
-                    <div class="footer-left">
-                        Société Régionale Multiservices Béni Mellal - Khénifra S.A<br>
-                        <span style="font-weight: normal; color: #555;">Siège Social: Bd Omar Ibn Al Khattab - B.P. 174, Béni Mellal</span>
-                    </div>
-                    <div class="footer-center-icon">
-                        <svg width="10" height="10" viewBox="0 0 10 10" fill="#444"><rect x="2" y="2" width="6" height="6"/></svg>
-                    </div>
-                    <div class="footer-right">
-                        الشركة الجهوية متعددة الخدمات بني ملال - خنيفرة ش.م<br>
-                        <span style="font-weight: normal; color: #555;">المقر الرئيسي: شارع عمر بن الخطاب - ص.ب: 174، بني ملال</span>
-                    </div>
-                </div>
-                <div class="footer-bottom-row">
-                    <span><strong>ICE :</strong> 003659660000073</span>
-                    <span><strong>IF :</strong> 66996362</span>
-                    <span><strong>RC :</strong> 16677</span>
-                    <span><strong>TP :</strong> 41904094</span>
-                    <span><strong>C.R.C.</strong> 05 23 48 32 07</span>
-                    <span><strong>F.A.X.</strong> 05 23 48 33 87</span>
-                    <span><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg> contact@srm-bk.ma</span>
-                    <span><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg> www.srm-bk.ma</span>
-                </div>
-            </div>
-        </div>
-
+    <!-- Reference row -->
+    <div class="ref-row">
+        <span lang="fr">Référence : <span dir="ltr" th:text="${mission.missionNumber}">REF</span></span>
+        <span lang="ar" dir="rtl">المرجع : <span dir="ltr" th:text="${mission.missionNumber}">REF</span></span>
     </div>
+
+    <!-- Document title -->
+    <h1 class="doc-title" lang="fr">ORDRE DE MISSION N° <span dir="ltr" th:text="${mission.missionNumber}">...</span></h1>
+
+    <!-- Authorization -->
+    <p class="auth" lang="fr"><strong>Monsieur / Madame</strong> <span th:text="${mission.requesterPrenom} + ' ' + ${mission.requesterNom}">Nom</span>, matricule <span class="code" th:text="${mission.requesterMatricule}">Matricule</span>, est autorisé(e) à se déplacer</p>
+    <p class="auth" lang="fr"><strong>pour les besoins de service</strong>
+        <th:block th:if="${mission.vehicle != null}"><strong>à bord du véhicule immatriculé :</strong> <span class="code" th:text="${mission.vehicleInfo}">Véhicule</span></th:block><th:block th:if="${mission.vehicle == null}"><strong><th:block th:if="${mission.moyenTransport == 'vehicule_personnel'}">avec son véhicule personnel</th:block><th:block th:if="${mission.moyenTransport != 'vehicule_personnel'}">à bord d'un véhicule de service</th:block></strong></th:block>
+    </p>
+
+    <!-- Mission metadata: label/colon/value grid, values wrap inside their column -->
+    <dl class="meta" lang="fr">
+        <div class="meta-row">
+            <dt>Destination</dt><span class="colon">:</span><dd th:text="${mission.destination}">Destination</dd>
+        </div>
+        <div class="meta-row">
+            <dt>Motif</dt><span class="colon">:</span><dd th:text="${mission.objet}">Motif</dd>
+        </div>
+        <div class="meta-row">
+            <dt>Date et heure de départ</dt><span class="colon">:</span><dd th:text="${#temporals.format(mission.dateDepart, 'dd/MM/yyyy HH:mm')}">Départ</dd>
+        </div>
+        <div class="meta-row">
+            <dt>Date et heure de retour</dt><span class="colon">:</span><dd th:text="${#temporals.format(mission.dateRetour, 'dd/MM/yyyy HH:mm')}">Retour</dd>
+        </div>
+        <div class="meta-row" th:if="${mission.combine && !#lists.isEmpty(mission.participants)}">
+            <dt>Participants accompagnateurs</dt><span class="colon">:</span>
+            <dd class="part-list"><div th:each="p : ${mission.participants}" th:text="${p.prenom} + ' ' + ${p.nom} + ' (' + ${p.fonction} + ')'">Participant</div></dd>
+        </div>
+    </dl>
+
+    <!-- Visas: both workflow levels, space left for physical signature/stamp -->
+    <section class="visas">
+        <div class="visa" th:each="step : ${mission.approvalSteps}" th:if="${step.ordre == 1 && step.statut == 'approuve'}">
+            <div class="visa-title" lang="fr">Visa du Chef Hiérarchique</div>
+            <div class="visa-name"><span th:text="${step.approverNom}">Nom</span>, le <span th:text="${step.dateAction != null ? #temporals.format(step.dateAction, 'dd/MM/yyyy') : ''}">date</span></div>
+            <div class="visa-space"></div>
+        </div>
+        <div class="visa" th:each="step : ${mission.approvalSteps}" th:if="${step.ordre == 2 && step.statut == 'approuve'}">
+            <div class="visa-title" lang="fr">Visa du Directeur Provincial</div>
+            <div class="visa-name"><span th:text="${step.approverNom}">Nom</span>, le <span th:text="${step.dateAction != null ? #temporals.format(step.dateAction, 'dd/MM/yyyy') : ''}">date</span></div>
+            <div class="visa-space"></div>
+        </div>
+    </section>
+
+    <!-- Footer: company identity + legal references (information unchanged) -->
+    <footer class="footer">
+        <div class="foot-cols">
+            <div class="foot-fr" lang="fr">
+                <strong>Société Régionale Multiservices Béni Mellal - Khénifra S.A</strong><br>
+                <span class="addr">Siège Social: Bd Omar Ibn Al Khattab - B.P. 174, Béni Mellal</span>
+            </div>
+            <div class="foot-ar">
+                <span class="ar" lang="ar" dir="rtl"><strong>الشركة الجهوية متعددة الخدمات بني ملال - خنيفرة ش.م</strong></span><br>
+                <span class="addr ar" lang="ar" dir="rtl">المقر الرئيسي: شارع عمر بن الخطاب - ص.ب: 174، بني ملال</span>
+            </div>
+        </div>
+        <div class="legal" lang="fr">
+            <span><strong>ICE :</strong> 003659660000073</span>
+            <span><strong>IF :</strong> 66996362</span>
+            <span><strong>RC :</strong> 16677</span>
+            <span><strong>TP :</strong> 41904094</span>
+            <span><strong>C.R.C.</strong> 05 23 48 32 07</span>
+            <span><strong>F.A.X.</strong> 05 23 48 33 87</span>
+            <span>contact@srm-bk.ma</span>
+            <span>www.srm-bk.ma</span>
+        </div>
+    </footer>
 </div>
 
 <div class="no-print">

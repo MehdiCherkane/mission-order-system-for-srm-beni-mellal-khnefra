@@ -41,9 +41,8 @@ public class DirecteurController {
     @GetMapping("/approval/{id}")
     public String approvalForm(@PathVariable UUID id, HttpSession session, Model model) {
         Employee user = (Employee) session.getAttribute("user");
-        Mission mission = missionService.findById(id);
+        Mission mission = missionService.requireAssignedApprover(id, 2, user.getId());
         if (mission == null) return "redirect:/directeur/pending";
-        if (!missionService.isAssignedApprover(id, 2, user.getId())) return "redirect:/directeur/pending";
 
         boolean alreadyProcessed = missionService.isStepAlreadyProcessed(id, 2);
 
@@ -59,14 +58,10 @@ public class DirecteurController {
                                   HttpSession session, Model model,
                                   RedirectAttributes redirectAttributes) {
         Employee user = (Employee) session.getAttribute("user");
-        if (!missionService.isAssignedApprover(id, 2, user.getId())) {
-            redirectAttributes.addFlashAttribute("toast", "Cette mission ne vous est pas affectée.");
-            return "redirect:/directeur/pending";
-        }
+        Mission mission = missionService.requireAssignedApprover(id, 2, user.getId());
+        if (mission == null) return "redirect:/directeur/pending";
 
         if ("rejete".equals(action) && (commentaire == null || commentaire.trim().isEmpty())) {
-            Mission mission = missionService.findById(id);
-            if (mission == null) return "redirect:/directeur/pending";
             model.addAttribute("user", user);
             model.addAttribute("mission", mission);
             model.addAttribute("rejectionError", "Veuillez fournir un motif de rejet.");

@@ -213,7 +213,7 @@ public class EmployeeController {
     @GetMapping("/mission/{id}")
     public String missionDetail(@PathVariable UUID id, HttpSession session, Model model) {
         Employee user = (Employee) session.getAttribute("user");
-        Mission mission = missionService.findById(id);
+        Mission mission = missionService.requireOwnedBy(id, user.getId());
         if (mission == null) return "redirect:/employee/dashboard";
         model.addAttribute("user", user);
         model.addAttribute("mission", mission);
@@ -223,7 +223,7 @@ public class EmployeeController {
     @GetMapping("/mission/{id}/print")
     public String printMission(@PathVariable UUID id, HttpSession session, Model model) {
         Employee user = (Employee) session.getAttribute("user");
-        Mission mission = missionService.findById(id);
+        Mission mission = missionService.requireOwnedBy(id, user.getId());
         if (mission == null) return "redirect:/employee/dashboard";
         if (!"approuvee".equals(mission.getStatut())) return "redirect:/employee/mission/" + id;
         model.addAttribute("user", user);

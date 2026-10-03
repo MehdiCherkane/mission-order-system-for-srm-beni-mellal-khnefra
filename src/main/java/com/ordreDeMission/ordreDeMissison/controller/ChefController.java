@@ -44,9 +44,8 @@ public class ChefController {
     @GetMapping("/approval/{id}")
     public String approvalForm(@PathVariable UUID id, HttpSession session, Model model) {
         Employee user = (Employee) session.getAttribute("user");
-        Mission mission = missionService.findById(id);
+        Mission mission = missionService.requireAssignedApprover(id, 1, user.getId());
         if (mission == null) return "redirect:/chef/pending";
-        if (!missionService.isAssignedApprover(id, 1, user.getId())) return "redirect:/chef/pending";
 
         boolean alreadyProcessed = missionService.isStepAlreadyProcessed(id, 1);
 
@@ -64,14 +63,10 @@ public class ChefController {
                                   HttpSession session, Model model,
                                   RedirectAttributes redirectAttributes) {
         Employee user = (Employee) session.getAttribute("user");
-        if (!missionService.isAssignedApprover(id, 1, user.getId())) {
-            redirectAttributes.addFlashAttribute("toast", "Cette mission ne vous est pas affectée.");
-            return "redirect:/chef/pending";
-        }
+        Mission mission = missionService.requireAssignedApprover(id, 1, user.getId());
+        if (mission == null) return "redirect:/chef/pending";
 
         if ("rejete".equals(action) && (commentaire == null || commentaire.trim().isEmpty())) {
-            Mission mission = missionService.findById(id);
-            if (mission == null) return "redirect:/chef/pending";
             model.addAttribute("user", user);
             model.addAttribute("mission", mission);
             model.addAttribute("vehicles", vehicleService.findAll());

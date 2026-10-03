@@ -58,7 +58,10 @@ CREATE TABLE IF NOT EXISTS `mission` (
   `statut` VARCHAR(30) NOT NULL,
   `combinee` TINYINT(1) NOT NULL DEFAULT 0,
   `date_creation` DATETIME NOT NULL,
+  `numero` INT NULL,
+  `annee` INT NULL,
   PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_mission_annee_numero` (`annee`, `numero`),
   KEY `idx_mission_requester` (`requester_id`),
   KEY `idx_mission_vehicle` (`vehicle_id`),
   CONSTRAINT `fk_mission_requester`

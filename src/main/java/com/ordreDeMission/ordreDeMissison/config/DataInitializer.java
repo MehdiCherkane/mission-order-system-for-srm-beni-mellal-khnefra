@@ -19,6 +19,7 @@ public class DataInitializer implements CommandLineRunner {
     private final SystemConfigRepository systemConfigRepo;
     private final ServiceApproverRepository serviceApproverRepo;
     private final PasswordEncoder passwordEncoder;
+    private int demoNumero = 1;
 
     public DataInitializer(EmployeeRepository employeeRepo, VehicleRepository vehicleRepo,
                            MissionRepository missionRepo, ApprovalStepRepository approvalStepRepo,
@@ -143,6 +144,8 @@ public class DataInitializer implements CommandLineRunner {
         m.setCombine(combinee);
         m.setStatut("soumise");
         m.setDateCreation(LocalDateTime.now());
+        m.setAnnee(LocalDateTime.now().getYear());
+        m.setNumero(demoNumero++);
         return missionRepo.save(m);
     }
 

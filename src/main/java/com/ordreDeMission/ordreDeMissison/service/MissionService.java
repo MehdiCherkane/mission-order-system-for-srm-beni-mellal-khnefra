@@ -3,6 +3,7 @@ package com.ordreDeMission.ordreDeMissison.service;
 import com.ordreDeMission.ordreDeMissison.model.*;
 import com.ordreDeMission.ordreDeMissison.repository.*;
 import jakarta.transaction.Transactional;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -112,6 +113,34 @@ public class MissionService {
                 .anyMatch(approver -> employeeId.equals(approver.getId()));
     }
 
+    /**
+     * Returns the mission only if it belongs to the given requester.
+     * Unknown id returns null (caller redirects, no ID enumeration).
+     * Known id owned by someone else throws AccessDeniedException (HTTP 403).
+     */
+    public Mission requireOwnedBy(UUID missionId, UUID requesterId) {
+        Mission mission = findById(missionId);
+        if (mission == null) return null;
+        if (requesterId == null || mission.getRequester() == null
+                || !requesterId.equals(mission.getRequester().getId())) {
+            throw new AccessDeniedException("Accès refusé à la mission " + missionId);
+        }
+        return mission;
+    }
+
+    /**
+     * Returns the mission only if the given employee is the assigned approver
+     * for the given step. Same null/denied contract as requireOwnedBy.
+     */
+    public Mission requireAssignedApprover(UUID missionId, int ordre, UUID employeeId) {
+        Mission mission = findById(missionId);
+        if (mission == null) return null;
+        if (!isAssignedApprover(missionId, ordre, employeeId)) {
+            throw new AccessDeniedException("Mission " + missionId + " non affectée à cet approbateur");
+        }
+        return mission;
+    }
+
     // Force eager initialization of lazy collections within the open transaction so
     // Thymeleaf can safely traverse them after the session closes.
     private List<Mission> initialize(List<Mission> missions) {
@@ -149,6 +178,12 @@ public class MissionService {
         mission.setRequester(requester);
         mission.setStatut("en_attente_chef");
         mission.setDateCreation(LocalDateTime.now());
+        // Sequential number within the creation year (restarts at 1 each year).
+        // Unique constraint (annee, numero) guards against duplicates.
+        int annee = mission.getDateCreation().getYear();
+        Integer max = missionRepo.findMaxNumeroByAnnee(annee);
+        mission.setAnnee(annee);
+        mission.setNumero(max == null ? 1 : max + 1);
         mission = missionRepo.save(mission);
 
         ApprovalStep step1 = new ApprovalStep(mission, chef, 1);

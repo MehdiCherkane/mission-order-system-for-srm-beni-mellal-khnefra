@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Entity
-@Table(name = "mission")
+@Table(name = "mission", uniqueConstraints = @UniqueConstraint(columnNames = {"annee", "numero"}))
 public class Mission {
 
     @Id
@@ -46,6 +46,14 @@ public class Mission {
     @Column(name = "date_creation", nullable = false)
     private LocalDateTime dateCreation;
 
+    // Sequential number within the year (e.g. 7 of 2026 -> "0007/2026").
+    // Assigned at creation; null only for rows created before this feature.
+    @Column
+    private Integer numero;
+
+    @Column
+    private Integer annee;
+
     @OneToMany(mappedBy = "mission", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ApprovalStep> approvalSteps = new ArrayList<>();
 
@@ -69,9 +77,18 @@ public class Mission {
     }
 
     public String getMissionNumber() {
+        if (numero != null && annee != null) {
+            return String.format("%04d/%d", numero, annee);
+        }
+        // Fallback for rows created before sequential numbering existed
         if (id == null) return "";
         return id.toString().substring(0, 6).toUpperCase();
     }
+
+    public Integer getNumero() { return numero; }
+    public void setNumero(Integer numero) { this.numero = numero; }
+    public Integer getAnnee() { return annee; }
+    public void setAnnee(Integer annee) { this.annee = annee; }
 
     public UUID getId() { return id; }
     public void setId(UUID id) { this.id = id; }

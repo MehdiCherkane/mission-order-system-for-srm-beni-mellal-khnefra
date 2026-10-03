@@ -28,7 +28,7 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/css/**", "/logo.png", "/login").permitAll()
+                .requestMatchers("/css/**", "/logo.png", "/login", "/access-denied").permitAll()
                 .requestMatchers("/chef/**").hasAuthority("CHEF_HIERARCHIQUE")
                 .requestMatchers("/directeur/**").hasAuthority("DIRECTEUR")
                 .requestMatchers("/admin/**").hasAuthority("ADMIN")
@@ -48,6 +48,7 @@ public class SecurityConfig {
                 .logoutSuccessUrl("/login?logout")
                 .permitAll()
             )
+            .exceptionHandling(ex -> ex.accessDeniedPage("/access-denied"))
             .sessionManagement(session -> session
                 .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
                 .maximumSessions(1)

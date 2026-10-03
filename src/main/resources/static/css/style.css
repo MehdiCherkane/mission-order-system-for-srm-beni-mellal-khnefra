@@ -2212,7 +2212,8 @@ tbody tr:last-child td {
 }
 
 .kpi-grid--status {
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(4, minmax(0, 230px));
+  justify-content: center;
 }
 
 .kpi-card {
@@ -2435,14 +2436,14 @@ h2 { color: var(--dark); font-weight: 700; }
 .kpi-section { margin-bottom: 2rem; }
 .kpi-section__title { margin-bottom: .85rem; color: #64748B; }
 .kpi-grid { gap: 1rem; }
-.kpi-card { min-height: 126px; padding: 1.25rem 1.35rem; border-color: var(--border); border-top-width: 1px; border-left: 4px solid #CBD5E1; border-radius: .75rem; box-shadow: var(--shadow); }
+.kpi-card { min-height: 126px; padding: 1.25rem 1.35rem; border-color: var(--border); border-top-width: 1px; border-left: 4px solid #CBD5E1; border-radius: .75rem; box-shadow: var(--shadow-md); }
 .kpi-card--brand { border-left-color: var(--primary); }
 .kpi-card--slate { border-left-color: #475569; }
 .kpi-card--warning { border-top-width: 1px; border-left-color: #D97706; }
 .kpi-card--success { border-top-width: 1px; border-left-color: #059669; }
 .kpi-card--danger { border-top-width: 1px; border-left-color: #DC2626; }
 .kpi-card--info { border-top-width: 1px; border-left-color: #3B82F6; }
-.kpi-card:hover { border-color: #CBD5E1; box-shadow: var(--shadow-md); }
+.kpi-card:hover { border-color: #CBD5E1; box-shadow: var(--shadow-lg); }
 .kpi-card__value { color: var(--dark); font-size: 2.25rem; font-weight: 800; letter-spacing: -.045em; }
 .kpi-card__label { color: #64748B; font-size: .7rem; font-weight: 750; letter-spacing: .08em; }
 thead th { padding: .9rem 1rem; border-bottom: 1px solid #E2E8F0; background: #F1F5F9; color: #475569; font-size: .7rem; font-weight: 800; letter-spacing: .08em; }
