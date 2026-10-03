@@ -3,6 +3,7 @@ package com.ordreDeMission.ordreDeMissison.controller;
 import com.ordreDeMission.ordreDeMissison.model.Employee;
 import com.ordreDeMission.ordreDeMissison.model.Mission;
 import com.ordreDeMission.ordreDeMissison.service.EmployeeService;
+import com.ordreDeMission.ordreDeMissison.service.LoginAttemptService;
 import com.ordreDeMission.ordreDeMissison.service.MissionService;
 import com.ordreDeMission.ordreDeMissison.service.VehicleService;
 import jakarta.servlet.http.HttpSession;
@@ -34,11 +35,13 @@ public class EmployeeController {
     private final MissionService missionService;
     private final EmployeeService employeeService;
     private final VehicleService vehicleService;
+    private final LoginAttemptService loginAttemptService;
 
-    public EmployeeController(MissionService missionService, EmployeeService employeeService, VehicleService vehicleService) {
+    public EmployeeController(MissionService missionService, EmployeeService employeeService, VehicleService vehicleService, LoginAttemptService loginAttemptService) {
         this.missionService = missionService;
         this.employeeService = employeeService;
         this.vehicleService = vehicleService;
+        this.loginAttemptService = loginAttemptService;
     }
 
     @GetMapping("/dashboard")
@@ -88,6 +91,10 @@ public class EmployeeController {
         Employee user = (Employee) session.getAttribute("user");
 
         Map<String, String> errors = new LinkedHashMap<>();
+
+        if (!loginAttemptService.isMissionCreationAllowed(user.getId())) {
+            errors.put("routing", "Trop de demandes créées récemment. Veuillez réessayer dans une heure.");
+        }
 
         // Validate objet
         if (objet == null || objet.trim().isEmpty()) {
@@ -192,6 +199,7 @@ public class EmployeeController {
 
         try {
             mission = missionService.create(mission, user.getId(), participantIds);
+            loginAttemptService.recordMissionCreated(user.getId());
         } catch (MissionService.ApprovalRoutingException ex) {
             errors.put("routing", ex.getMessage());
             model.addAttribute("errors", errors);

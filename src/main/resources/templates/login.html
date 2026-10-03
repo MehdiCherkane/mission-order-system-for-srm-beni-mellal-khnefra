@@ -30,6 +30,9 @@
       <div th:if="${param.error != null}" class="alert alert--error">
         Matricule ou mot de passe incorrect.
       </div>
+      <div th:if="${param.blocked != null}" class="alert alert--error">
+        Trop de tentatives. Veuillez r&eacute;essayer dans 15 minutes.
+      </div>
       <div th:if="${param.logout != null}" class="alert alert--success">
         Vous avez &eacute;t&eacute; d&eacute;connect&eacute; avec succ&egrave;s.
       </div>

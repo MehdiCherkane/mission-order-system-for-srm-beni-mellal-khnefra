@@ -2,6 +2,7 @@ package com.ordreDeMission.ordreDeMissison.config;
 
 import com.ordreDeMission.ordreDeMissison.model.Employee;
 import com.ordreDeMission.ordreDeMissison.service.EmployeeService;
+import com.ordreDeMission.ordreDeMissison.service.LoginAttemptService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
@@ -11,7 +12,9 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.session.HttpSessionEventPublisher;
 
 @Configuration
@@ -19,9 +22,14 @@ import org.springframework.security.web.session.HttpSessionEventPublisher;
 public class SecurityConfig {
 
     private final EmployeeService employeeService;
+    private final LoginAttemptService loginAttemptService;
+    private final LoginRateLimitFilter loginRateLimitFilter;
 
-    public SecurityConfig(EmployeeService employeeService) {
+    public SecurityConfig(EmployeeService employeeService, LoginAttemptService loginAttemptService,
+                          LoginRateLimitFilter loginRateLimitFilter) {
         this.employeeService = employeeService;
+        this.loginAttemptService = loginAttemptService;
+        this.loginRateLimitFilter = loginRateLimitFilter;
     }
 
     @Bean
@@ -40,7 +48,7 @@ public class SecurityConfig {
                 .usernameParameter("matricule")
                 .passwordParameter("motDePasse")
                 .successHandler(authenticationSuccessHandler())
-                .failureUrl("/login?error")
+                .failureHandler(authenticationFailureHandler())
                 .permitAll()
             )
             .logout(logout -> logout
@@ -60,6 +68,7 @@ public class SecurityConfig {
                 .xssProtection(xss -> xss.disable())
                 )
             .requestCache(rcc -> rcc.disable());
+        http.addFilterBefore(loginRateLimitFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
@@ -72,6 +81,8 @@ public class SecurityConfig {
     private AuthenticationSuccessHandler authenticationSuccessHandler() {
         return (HttpServletRequest request, HttpServletResponse response, Authentication authentication) -> {
             String matricule = authentication.getName();
+            loginAttemptService.recordSuccess(LoginAttemptService.loginKey(
+                    LoginAttemptService.clientIp(request), matricule));
             Employee emp = employeeService.findByMatricule(matricule);
             if (emp == null) {
                 response.sendRedirect("/login?error");
@@ -85,6 +96,20 @@ public class SecurityConfig {
                 default -> "/employee/dashboard";
             };
             response.sendRedirect(redirect);
+        };
+    }
+
+    private AuthenticationFailureHandler authenticationFailureHandler() {
+        return (HttpServletRequest request, HttpServletResponse response,
+                org.springframework.security.core.AuthenticationException exception) -> {
+            String key = LoginAttemptService.loginKey(
+                    LoginAttemptService.clientIp(request), request.getParameter("matricule"));
+            loginAttemptService.recordFailure(key);
+            if (loginAttemptService.isBlocked(key)) {
+                response.sendRedirect("/login?blocked");
+            } else {
+                response.sendRedirect("/login?error");
+            }
         };
     }
 }
